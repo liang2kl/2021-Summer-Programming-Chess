@@ -1,5 +1,8 @@
 #include "chessboardscene.h"
+#include "dropshadoweffect.h"
 #include <QImage>
+#include <QGraphicsDropShadowEffect>
+#include <QDebug>
 
 ChessboardScene::ChessboardScene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -9,10 +12,12 @@ ChessboardScene::ChessboardScene(QObject *parent) : QGraphicsScene(parent)
 void ChessboardScene::drawScene() {
     QVector<QPoint> points = generateCellData();
 
-    drawBackgroundImage();
+    drawBoardBackground(points);
     drawRoads(points);
     drawRects(points);
     drawCircles(points);
+
+    emit didFinishRender();
 }
 
 void ChessboardScene::drawRects(const QVector<QPoint>& cellOrigins) {
@@ -30,8 +35,15 @@ void ChessboardScene::drawRects(const QVector<QPoint>& cellOrigins) {
         }
         if (skip) { continue; }
 
-        QGraphicsPixmapItem *item = this->addPixmap(image);
-        item->setOffset(cellOrigins[i]);
+        QGraphicsRectItem *item = this->addRect(
+                    QRectF(cellOrigins[i].x(),
+                           cellOrigins[i].y(),
+                           cellWidth(),
+                           cellHeight()),
+                    QPen(QColor(0x495f68), cellHeight() / 8),
+                    QColor(0x212325));
+
+        item->setGraphicsEffect(new DropShadowEffect());
     }
 }
 
@@ -39,21 +51,39 @@ void ChessboardScene::drawCircles(const QVector<QPoint> &cellOrigins) {
     QPixmap image(":/resources/chessboard/camp-placeholder.png");
     image = image.scaled(cellWidth(), cellHeight(), Qt::KeepAspectRatio);
 
+    const float radius = cellHeight() * CIRCLE_RADIUS_RATIO;
+
     for (const QPoint& coordinate : CIRCLE_COORDINATES) {
         const int index = coordinate.x() * 5 + coordinate.y();
-        QGraphicsPixmapItem *item = this->addPixmap(image);
-        // FIXME: Assuming the resource aspect ratio as 1
-        const int xOffset = (cellWidth() - cellHeight()) / 2;
-        item->setOffset(cellOrigins[index].x() + xOffset, cellOrigins[index].y());
+        const QPoint center = centerPointFromOrigin(cellOrigins[index]);
+
+        auto *item = this->addEllipse(
+                    center.x() - radius,
+                    center.y() - radius,
+                    radius * 2,
+                    radius * 2,
+                    QPen(QColor(0x3a5136), cellHeight() / 8),
+                    QColor(0x212325));
+
+        item->setGraphicsEffect(new DropShadowEffect());
     }
 }
 
-void ChessboardScene::drawBackgroundImage() {
+void ChessboardScene::drawBoardBackground(const QVector<QPoint> &cellOrigins) {
     QPixmap image(":/resources/chessboard/background.jpg");
     const int width = 5 * cellWidth() + 6 * horizontalSpacing();
     const int height = 12 * cellHeight() + 13 * verticalSpacing() + centerVerticalSpacing();
     image = image.scaled(width, height);
-    this->addPixmap(image);
+    this->addRect(0, 0, width, height, QPen(), QColor(0x1b1b1b));
+//    this->addPixmap(image);
+
+    const QRectF rect1(centerPointFromOrigin(cellOrigins[0]), centerPointFromOrigin(cellOrigins[29]));
+    const QRectF rect2(centerPointFromOrigin(cellOrigins[30]), centerPointFromOrigin(cellOrigins[59]));
+
+    QColor color = 0x272b2f;
+    color.setAlphaF(0.5);
+    this->addRect(rect1, QPen(), color);
+    this->addRect(rect2, QPen(), color);
 }
 
 void ChessboardScene::drawRoads(const QVector<QPoint> &cellOrigins) {
@@ -112,20 +142,23 @@ void ChessboardScene::drawRoads(const QVector<QPoint> &cellOrigins) {
 }
 
 void ChessboardScene::_drawRoad(const QLine &line) {
-    auto *item = this->addLine(
-            line,
-            QPen(QColor(0x495f68), cellHeight() / 6));
+    auto *item = this->addLine(line,
+            QPen(QColor(0x303f46), cellHeight() / 6));
+
+    item->setGraphicsEffect(new DropShadowEffect());
 }
 
 void ChessboardScene::_drawRailway(const QLine &line) {
 
-    this->addLine(
-            line,
+    auto *item1 = this->addLine(line,
             QPen(QColor(0x111), cellHeight() / 2.8));
 
-    this->addLine(
-            line,
+    item1->setGraphicsEffect(new DropShadowEffect());
+
+    auto *item2 = this->addLine(line,
             QPen(QColor(0x9d8647), cellHeight() / 8, Qt::PenStyle::DotLine));
+
+    item2->setGraphicsEffect(new DropShadowEffect());
 }
 
 QVector<QPoint> ChessboardScene::generateCellData() {
@@ -150,11 +183,11 @@ QPoint ChessboardScene::centerPointFromOrigin(const QPoint &origin) {
 }
 
 void ChessboardScene::resizeEvent(QResizeEvent *event) {
+    if (abs(event->size().height() - event->oldSize().height()) < 2) { return; }
     float ratio = 12 + 12 * VERTICAL_SPACING_RATIO + CENTER_VERTICAL_SPACING_RATIO;
-    int cellHeight = event->size().height() / ratio;
+    int cellHeight = event->size().height() / ratio * 0.97;
     setCellHeight(cellHeight);
 
-    // TODO: Update rather than redraw
     this->clear();
     drawScene();
 }

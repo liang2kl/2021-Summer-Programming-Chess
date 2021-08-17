@@ -17,6 +17,7 @@ SOURCES += \
 HEADERS += \
     chessboardscene.h \
     chessboardview.h \
+    dropshadoweffect.h \
     mainwindow.h
 
 # Default rules for deployment.

@@ -10,9 +10,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    ChessboardView *view = new ChessboardView(new ChessboardScene());
+    ChessboardView *view = new ChessboardView();
 
     view->show();
-
     return a.exec();
 }

@@ -17,12 +17,13 @@ private:
         QPoint(7, 3), QPoint(8, 2),
         QPoint(9, 1), QPoint(9, 3)
     };
+
     // Drawing
     void drawScene();
     void drawRoads(const QVector<QPoint>& cellOrigins);
     void drawRects(const QVector<QPoint>& cellOrigins);
     void drawCircles(const QVector<QPoint>& cellOrigins);
-    void drawBackgroundImage();
+    void drawBoardBackground(const QVector<QPoint> &cellOrigins);
 
     void _drawRoad(const QLine &line);
     void _drawRailway(const QLine &line);
@@ -32,6 +33,8 @@ private:
     const float HORIZONTAL_SPACING_RATIO = 0.8;
     const float VERTICAL_SPACING_RATIO = 0.5;
     const float CENTER_VERTICAL_SPACING_RATIO = 3;
+    const float CIRCLE_RADIUS_RATIO = 0.65;
+
     int _cellHeight = 50;
     void setCellHeight(int height) { _cellHeight = height; }
     int cellHeight() {
@@ -55,6 +58,9 @@ private:
 
 public slots:
     void resizeEvent(QResizeEvent * event);
+
+signals:
+    void didFinishRender();
 
 public:
     explicit ChessboardScene(QObject *parent = nullptr);

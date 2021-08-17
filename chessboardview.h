@@ -3,6 +3,7 @@
 
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QTimer>
 
 #include "chessboardscene.h"
 
@@ -11,12 +12,17 @@ class ChessboardView : public QGraphicsView
     Q_OBJECT
 
 private:
-    QGraphicsScene * scene;
+    ChessboardScene * chessboardScene;
+
+private slots:
+    void sceneDidFinishRender();
+    void resizeEvent(QResizeEvent *);
 
 signals:
-    void resizeEvent(QResizeEvent*);
+    void didResize(QResizeEvent *);
+
 public:
-    ChessboardView(ChessboardScene * scene);
+    ChessboardView();
 };
 
 #endif // CHESSBOARDVIEW_H

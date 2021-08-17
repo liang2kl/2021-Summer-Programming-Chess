@@ -8,9 +8,13 @@
 
 class ChessboardView : public QGraphicsView
 {
+    Q_OBJECT
+
 private:
-    void resizeEvent(QResizeEvent*);
     QGraphicsScene * scene;
+
+signals:
+    void resizeEvent(QResizeEvent*);
 public:
     ChessboardView(ChessboardScene * scene);
 };

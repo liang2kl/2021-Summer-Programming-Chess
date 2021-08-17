@@ -17,6 +17,7 @@ SOURCES += \
 HEADERS += \
     chessboardscene.h \
     chessboardview.h \
+    constants.h \
     dropshadoweffect.h \
     mainwindow.h
 
@@ -25,5 +26,4 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-RESOURCES += \
-    imageresources.qrc
+RESOURCES +=

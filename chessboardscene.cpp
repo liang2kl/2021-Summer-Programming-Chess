@@ -1,11 +1,11 @@
 #include "chessboardscene.h"
 #include "dropshadoweffect.h"
+#include "constants.h"
 #include <QImage>
 #include <QGraphicsDropShadowEffect>
-#include <QDebug>
 
-ChessboardScene::ChessboardScene(QObject *parent) : QGraphicsScene(parent)
-{
+ChessboardScene::ChessboardScene(int initialHeight) {
+    setNewSize(QSize(0, initialHeight));
     drawScene();
 }
 
@@ -20,11 +20,8 @@ void ChessboardScene::drawScene() {
     emit didFinishRender();
 }
 
-void ChessboardScene::drawRects(const QVector<QPoint>& cellOrigins) {
-    QPixmap image(":/resources/chessboard/station-placeholder.png");
-    image = image.scaled(cellWidth(), cellHeight());
-
-    const int size = cellOrigins.size();
+void ChessboardScene::drawRects(const QVector<QPoint>& cellCenters) {
+    const int size = cellCenters.size();
     for (int i = 0; i < size; i++) {
         bool skip = false;
         for (const QPoint& coordinate : CIRCLE_COORDINATES) {
@@ -36,63 +33,53 @@ void ChessboardScene::drawRects(const QVector<QPoint>& cellOrigins) {
         if (skip) { continue; }
 
         QGraphicsRectItem *item = this->addRect(
-                    QRectF(cellOrigins[i].x(),
-                           cellOrigins[i].y(),
+                    QRectF(cellCenters[i].x() - cellWidth() * 0.5,
+                           cellCenters[i].y() - cellHeight() * 0.5,
                            cellWidth(),
                            cellHeight()),
-                    QPen(QColor(0x495f68), cellHeight() / 8),
-                    QColor(0x212325));
+                    QPen(Constant::cellStrokeColor, cellHeight() / 8),
+                    Constant::cellFillColor);
 
         item->setGraphicsEffect(new DropShadowEffect());
     }
 }
 
-void ChessboardScene::drawCircles(const QVector<QPoint> &cellOrigins) {
-    QPixmap image(":/resources/chessboard/camp-placeholder.png");
-    image = image.scaled(cellWidth(), cellHeight(), Qt::KeepAspectRatio);
-
+void ChessboardScene::drawCircles(const QVector<QPoint> &cellCenters) {
     const float radius = cellHeight() * CIRCLE_RADIUS_RATIO;
 
     for (const QPoint& coordinate : CIRCLE_COORDINATES) {
         const int index = coordinate.x() * 5 + coordinate.y();
-        const QPoint center = centerPointFromOrigin(cellOrigins[index]);
+        const QPoint center = cellCenters[index];
 
         auto *item = this->addEllipse(
                     center.x() - radius,
                     center.y() - radius,
                     radius * 2,
                     radius * 2,
-                    QPen(QColor(0x3a5136), cellHeight() / 8),
-                    QColor(0x212325));
+                    QPen(Constant::circleStrokeColor, cellHeight() / 8),
+                    Constant::cellFillColor);
 
         item->setGraphicsEffect(new DropShadowEffect());
     }
 }
 
-void ChessboardScene::drawBoardBackground(const QVector<QPoint> &cellOrigins) {
-    QPixmap image(":/resources/chessboard/background.jpg");
+void ChessboardScene::drawBoardBackground(const QVector<QPoint> &cellCenters) {
     const int width = 5 * cellWidth() + 6 * horizontalSpacing();
     const int height = 12 * cellHeight() + 13 * verticalSpacing() + centerVerticalSpacing();
-    image = image.scaled(width, height);
-    this->addRect(0, 0, width, height, QPen(), QColor(0x1b1b1b));
-//    this->addPixmap(image);
 
-    const QRectF rect1(centerPointFromOrigin(cellOrigins[0]), centerPointFromOrigin(cellOrigins[29]));
-    const QRectF rect2(centerPointFromOrigin(cellOrigins[30]), centerPointFromOrigin(cellOrigins[59]));
+    this->addRect(0, 0, width, height, Constant::backgroundColor, Constant::backgroundColor);
 
-    QColor color = 0x272b2f;
-    color.setAlphaF(0.5);
-    this->addRect(rect1, QPen(), color);
-    this->addRect(rect2, QPen(), color);
+    this->addRect(QRect(cellCenters[0], cellCenters[29]), QPen(), Constant::overlayColor);
+    this->addRect(QRect(cellCenters[30], cellCenters[59]), QPen(), Constant::overlayColor);
 }
 
-void ChessboardScene::drawRoads(const QVector<QPoint> &cellOrigins) {
+void ChessboardScene::drawRoads(const QVector<QPoint> &cellCenters) {
 
     // Horizontal
     for (int i = 0; i < 12; i++) {
         const int base = i * 5;
-        QLine line(centerPointFromOrigin(cellOrigins[base]),
-                   centerPointFromOrigin(cellOrigins[base + 4]));
+        QLine line(cellCenters[base],
+                   cellCenters[base + 4]);
 
         if (i == 1 || i == 5 || i == 6 || i == 10) {
             _drawRailway(line);
@@ -104,21 +91,21 @@ void ChessboardScene::drawRoads(const QVector<QPoint> &cellOrigins) {
 
     // Vertical
     for (int i = 0; i < 5; i++) {
-        QLine line1(centerPointFromOrigin(cellOrigins[i]),
-                   centerPointFromOrigin(cellOrigins[25 + i]));
+        QLine line1(cellCenters[i],
+                   cellCenters[25 + i]);
         _drawRoad(line1);
 
-        QLine line2(centerPointFromOrigin(cellOrigins[30 + i]),
-                   centerPointFromOrigin(cellOrigins[55 + i]));
+        QLine line2(cellCenters[30 + i],
+                   cellCenters[55 + i]);
         _drawRoad(line2);
 
         if (i == 0 || i == 4) {
-            QLine line(centerPointFromOrigin(cellOrigins[5 + i]),
-                       centerPointFromOrigin(cellOrigins[50 + i]));
+            QLine line(cellCenters[5 + i],
+                       cellCenters[50 + i]);
             _drawRailway(line);
         } else if (i == 2) {
-            QLine line(centerPointFromOrigin(cellOrigins[27]),
-                       centerPointFromOrigin(cellOrigins[32]));
+            QLine line(cellCenters[27],
+                       cellCenters[32]);
             _drawRailway(line);
         }
     }
@@ -131,12 +118,12 @@ void ChessboardScene::drawRoads(const QVector<QPoint> &cellOrigins) {
         const int index3 = (coordinate.x() - 1) * 5 + coordinate.y() + 1;
         const int index4 = (coordinate.x() + 1) * 5 + coordinate.y() - 1;
 
-        QLine line1(centerPointFromOrigin(cellOrigins[index1]),
-                   centerPointFromOrigin(cellOrigins[index2]));
+        QLine line1(cellCenters[index1],
+                   cellCenters[index2]);
         _drawRoad(line1);
 
-        QLine line2(centerPointFromOrigin(cellOrigins[index3]),
-                   centerPointFromOrigin(cellOrigins[index4]));
+        QLine line2(cellCenters[index3],
+                   cellCenters[index4]);
         _drawRoad(line2);
     }
 }
@@ -165,8 +152,8 @@ QVector<QPoint> ChessboardScene::generateCellData() {
     QVector<QPoint> points;
     for (int row = 0; row < 12; row++) {
         for (int column = 0; column < 5; column++) {
-            float x = horizontalSpacing() * (column + 1) + cellWidth() * column;
-            float y = verticalSpacing() * (row + 1) + cellHeight() * row;
+            float x = horizontalSpacing() * (column + 1) + cellWidth() * (column + 0.5);
+            float y = verticalSpacing() * (row + 1) + cellHeight() * (row + 0.5);
             if (row > 5) {
                 y += centerVerticalSpacing();
             }
@@ -177,17 +164,22 @@ QVector<QPoint> ChessboardScene::generateCellData() {
     return points;
 }
 
-QPoint ChessboardScene::centerPointFromOrigin(const QPoint &origin) {
-    return QPoint(origin.x() + cellWidth() / 2,
-                  origin.y() + cellHeight() / 2);
-}
-
 void ChessboardScene::resizeEvent(QResizeEvent *event) {
     if (abs(event->size().height() - event->oldSize().height()) < 2) { return; }
-    float ratio = 12 + 12 * VERTICAL_SPACING_RATIO + CENTER_VERTICAL_SPACING_RATIO;
-    int cellHeight = event->size().height() / ratio * 0.97;
-    setCellHeight(cellHeight);
+    setNewSize(event->size());
 
     this->clear();
     drawScene();
+}
+
+void ChessboardScene::setNewSize(const QSize &size) {
+    float ratio = 12 + 12 * VERTICAL_SPACING_RATIO + CENTER_VERTICAL_SPACING_RATIO;
+    int cellHeight = size.height() / ratio * 0.97;
+    setCellHeight(cellHeight);
+}
+
+void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    qDebug() << event->scenePos() << "\n";
+    auto * item = itemAt(event->scenePos(), QTransform());
+    qDebug() << item << "\n";
 }

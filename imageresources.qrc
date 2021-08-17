@@ -1,7 +1,3 @@
 <RCC>
-    <qresource prefix="/resources/chessboard">
-        <file>station-placeholder.png</file>
-        <file>camp-placeholder.png</file>
-        <file>background.jpg</file>
-    </qresource>
+    <qresource prefix="/resources/chessboard"/>
 </RCC>

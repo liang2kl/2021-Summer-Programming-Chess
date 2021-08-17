@@ -5,6 +5,7 @@
 #include <QGraphicsItem>
 #include <QColor>
 #include <QResizeEvent>
+#include <QGraphicsSceneMouseEvent>
 
 class ChessboardScene : public QGraphicsScene {
     Q_OBJECT
@@ -20,10 +21,10 @@ private:
 
     // Drawing
     void drawScene();
-    void drawRoads(const QVector<QPoint>& cellOrigins);
-    void drawRects(const QVector<QPoint>& cellOrigins);
-    void drawCircles(const QVector<QPoint>& cellOrigins);
-    void drawBoardBackground(const QVector<QPoint> &cellOrigins);
+    void drawRoads(const QVector<QPoint>& cellCenters);
+    void drawRects(const QVector<QPoint>& cellCenters);
+    void drawCircles(const QVector<QPoint>& cellCenters);
+    void drawBoardBackground(const QVector<QPoint> &cellCenters);
 
     void _drawRoad(const QLine &line);
     void _drawRailway(const QLine &line);
@@ -35,7 +36,7 @@ private:
     const float CENTER_VERTICAL_SPACING_RATIO = 3;
     const float CIRCLE_RADIUS_RATIO = 0.65;
 
-    int _cellHeight = 50;
+    int _cellHeight;
     void setCellHeight(int height) { _cellHeight = height; }
     int cellHeight() {
         return _cellHeight;
@@ -54,7 +55,10 @@ private:
     }
 
     QVector<QPoint> generateCellData();
-    QPoint centerPointFromOrigin(const QPoint &origin);
+    void setNewSize(const QSize &size);
+
+    void mousePressEvent(QGraphicsSceneMouseEvent *);
+
 
 public slots:
     void resizeEvent(QResizeEvent * event);
@@ -63,7 +67,7 @@ signals:
     void didFinishRender();
 
 public:
-    explicit ChessboardScene(QObject *parent = nullptr);
+    ChessboardScene(int initialHeight = 600);
 };
 
 #endif // CHESSBOARDSCENE_H

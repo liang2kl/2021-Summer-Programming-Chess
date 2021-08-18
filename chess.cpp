@@ -18,11 +18,7 @@ QString Chess::name() const {
 }
 
 bool Chess::isMovable() {
-    switch (_type) {
-    case Landmine: return false;
-    case Flag: return false;
-    default: return true;
-    }
+    return _type != Landmine && _type != Flag;
 }
 
 Chess::EncounterResult Chess::encounter(Chess anotherChess) {

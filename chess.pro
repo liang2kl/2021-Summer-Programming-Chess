@@ -13,6 +13,7 @@ SOURCES += \
     chessboardscene.cpp \
     chessboardview.cpp \
     chessgame.cpp \
+    chessgraphicsitem.cpp \
     chesspoint.cpp \
     main.cpp \
     mainwindow.cpp
@@ -22,6 +23,7 @@ HEADERS += \
     chessboardscene.h \
     chessboardview.h \
     chessgame.h \
+    chessgraphicsitem.h \
     chesspoint.h \
     constants.h \
     dropshadoweffect.h \

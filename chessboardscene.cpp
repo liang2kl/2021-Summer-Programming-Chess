@@ -29,9 +29,12 @@ void ChessboardScene::drawChesses(const QVector<QPoint>& cellCenters) {
     for (int i = 0; i < size; i++) {
         const auto *chess = chesses[i];
         if (chess) {
-            auto *item = this->addText(chess->name());
+            auto *item = new ChessGraphicsItem(chess, QSizeF(cellWidth(), cellHeight()));
+            item->setPos(cellCenters[i].x() - cellWidth() / 2,
+                         cellCenters[i].y() - cellHeight() / 2);
 
-            item->setPos(cellCenters[i]);
+            addItem(item);
+            chessItems.append(item);
         }
     }
 }
@@ -57,6 +60,7 @@ void ChessboardScene::drawRects(const QVector<QPoint>& cellCenters) {
                     Constant::cellFillColor);
 
         item->setGraphicsEffect(new DropShadowEffect());
+        containerItems[i] = item;
     }
 }
 
@@ -76,6 +80,7 @@ void ChessboardScene::drawCircles(const QVector<QPoint> &cellCenters) {
                     Constant::cellFillColor);
 
         item->setGraphicsEffect(new DropShadowEffect());
+        containerItems[index] = item;
     }
 }
 
@@ -188,4 +193,16 @@ void ChessboardScene::setNewSize(const QSize &size) {
 }
 
 void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+    auto *item = itemAt(event->scenePos(), QTransform());
+    if (!item) { return; }
+
+    auto *ancestor = item;
+    while (ancestor->parentItem()) { ancestor = ancestor->parentItem(); }
+
+    for (auto *chessItem : chessItems) {
+        if (chessItem == ancestor) {
+            chessItem->toggleSide();
+            break;
+        }
+    }
 }

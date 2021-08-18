@@ -8,13 +8,14 @@
 #include <QGraphicsSceneMouseEvent>
 
 #include "chessgame.h"
+#include "chessgraphicsitem.h"
 
 class ChessboardScene : public QGraphicsScene {
     Q_OBJECT
 
 private:
-    QVector<QGraphicsItem *> rectItems = QVector<QGraphicsItem *>(60);
-    QVector<QGraphicsItem *> chessItems = QVector<QGraphicsItem *>(60);
+    QVector<QGraphicsItem *> containerItems = QVector<QGraphicsItem *>(60);
+    QVector<ChessGraphicsItem *> chessItems = QVector<ChessGraphicsItem *>(60);
 
 private:
     // Drawing

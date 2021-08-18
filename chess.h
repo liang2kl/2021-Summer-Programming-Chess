@@ -2,6 +2,8 @@
 #define CHESS_H
 
 #include <QString>
+#include <QPoint>
+#include "chesspoint.h"
 
 class Chess {
 public:
@@ -20,56 +22,39 @@ public:
         Flag
     };
 
+    enum Side { Blue, Red };
+
     enum EncounterResult {
         Success, Failure, Draw
     };
 
 private:
     Type _type;
+    ChessPoint _position;
+    Side _side;
+    bool _isFlipped = false;
 
 public:
     Chess() {}
-    Chess(Type type): _type(type) {}
+    Chess(Type type, Side side, ChessPoint position = ChessPoint()):
+        _type(type), _position(position), _side(side) {}
 
-    Type type() { return _type; }
+    Type type() const { return _type; }
+    ChessPoint position() const { return _position; }
+    Side side() const { return _side; }
+    bool isFlipped() { return _isFlipped; }
 
-    QString name() {
-        switch (_type) {
-        case Engineer: return "工兵";
-        case PlatoonCommander: return "排长";
-        case CompanyCommander: return "连长";
-        case BattalionCommander: return "营长";
-        case RegimentalCommander: return "团长";
-        case Brigadier: return "旅长";
-        case DivisionCommander: return "师长";
-        case ArmyCommander: return "军长";
-        case Commander: return "司令";
-        case Bomb: return "炸弹";
-        case Landmine: return "地雷";
-        case Flag: return "军旗";
-        }
-    }
+    void setPosition(const ChessPoint &position) { _position = position; }
+    void flip() { _isFlipped = true; }
 
-    bool isMovable() {
-        switch (_type) {
-        case Landmine: return false;
-        case Flag: return false;
-        default: return true;
-        }
-    }
+    QString name() const;
+    bool isMovable();
 
-    EncounterResult encounter(Chess anotherChess) {
-        Type another = anotherChess.type();
-        // These type of chesses cannot move
-        assert(_type != Landmine && _type != Flag);
 
-        if (_type == Bomb) { return Draw; }
-        if (_type == Engineer && another == Landmine) {
-            return Success;
-        }
-        if (_type == another) { return Draw; }
-        return _type > another ? Success : Failure;
-    }
+    EncounterResult encounter(Chess anotherChess);
+
+    // Having no assertion about whether the points are valid.
+    bool allowingMoveTo(const ChessPoint &dest);
 };
 
 #endif // CHESS_H

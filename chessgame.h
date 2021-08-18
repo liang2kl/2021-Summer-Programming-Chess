@@ -5,27 +5,30 @@
 
 #include <QPoint>
 #include <QVector>
+#include <QObject>
 
-class ChessGame {
+class ChessGame: QObject {
+    Q_OBJECT
+
 private:
-    struct ChessInfo {
-        enum Side { Blue, Red };
+    ChessGame();
+    QVector<Chess *> _chesses = QVector<Chess *>(60);
 
-        Chess chess;
-        Side side;
-        QPoint position;
+    int indexOfPoint(const ChessPoint &point) {
+        assert(point.x() < 12 && point.y() < 5);
+        return point.x() * 5 + point.y();
+    }
 
-        ChessInfo(Chess chess, Side side, QPoint position = QPoint()):
-            chess(chess), side(side), position(position) {}
-    };
-
-    QVector<ChessInfo> blues;
-    QVector<ChessInfo> reds;
-
-    void randomize();
+signals:
+    void chessDidMove(const ChessPoint &source, const ChessPoint &dest);
+    void chessDidRemoved(const ChessPoint &point);
 
 public:
-    ChessGame();
+    bool canMoveChess(const ChessPoint &source, const ChessPoint &dest);
+    QVector<const Chess *> chesses() const;
+    void randomize();
+    // Game singleton
+    static const ChessGame *shared;
 };
 
 

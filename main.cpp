@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "chessboardscene.h"
 #include "chessboardview.h"
-
+#include "chessgame.h"
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsView>

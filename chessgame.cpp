@@ -9,58 +9,94 @@ ChessGame::ChessGame() {
     randomize();
 }
 
+const ChessGame *ChessGame::shared = new ChessGame();
+
 void ChessGame::randomize() {
-    QVector<ChessInfo> chesses;
+    QVector<Chess *> chesses;
 
     for (int s = 0; s < 2; s++) {
-        auto side = ChessInfo::Side(s);
+        auto side = Chess::Side(s);
 
-        chesses.emplace_back(Chess::Type::Flag, side);
-        chesses.emplace_back(Chess::Type::Commander, side);
-        chesses.emplace_back(Chess::Type::ArmyCommander, side);
+        chesses.append(new Chess(Chess::Type::Flag, side));
+        chesses.append(new Chess(Chess::Type::Commander, side));
+        chesses.append(new Chess(Chess::Type::ArmyCommander, side));
 
         for (int i = 0; i < 2; i++) {
-            chesses.emplace_back(Chess::Type::DivisionCommander, side);
-            chesses.emplace_back(Chess::Type::Brigadier, side);
-            chesses.emplace_back(Chess::Type::RegimentalCommander, side);
-            chesses.emplace_back(Chess::Type::BattalionCommander, side);
-            chesses.emplace_back(Chess::Type::Bomb, side);
+            chesses.append(new Chess(Chess::Type::DivisionCommander, side));
+            chesses.append(new Chess(Chess::Type::Brigadier, side));
+            chesses.append(new Chess(Chess::Type::RegimentalCommander, side));
+            chesses.append(new Chess(Chess::Type::BattalionCommander, side));
+            chesses.append(new Chess(Chess::Type::Bomb, side));
         }
 
         for (int i = 0; i < 3; i++) {
-            chesses.emplace_back(Chess::Type::CompanyCommander, side);
-            chesses.emplace_back(Chess::Type::PlatoonCommander, side);
-            chesses.emplace_back(Chess::Type::Engineer, side);
-            chesses.emplace_back(Chess::Type::Landmine, side);
+            chesses.append(new Chess(Chess::Type::CompanyCommander, side));
+            chesses.append(new Chess(Chess::Type::PlatoonCommander, side));
+            chesses.append(new Chess(Chess::Type::Engineer, side));
+            chesses.append(new Chess(Chess::Type::Landmine, side));
         }
-
     }
 
     auto rd = std::random_device {};
     auto rng = std::default_random_engine { rd() };
     std::shuffle(std::begin(chesses), std::end(chesses), rng);
 
-    for (int i = 0; i < 50; i++) {
-        const int column = i % 5;
-        const int row = i / 5;
-        chesses[i].position = QPoint(row, column);
-    }
-
     int campIndex1 = 0;
     int campIndex2 = 0;
 
-    for (auto &chess : chesses) {
-        const int index = chess.position.x() * 5 + chess.position.y();
-        if (index == 11 || index == 13 || index == 17 || index == 21 || index == 23) {
-            chess.position = QPoint(10, campIndex1);
-            campIndex1++;
-        } else if (index == 36 || index == 38 || index == 42 || index == 46 || index == 48) {
-            chess.position = QPoint(11, campIndex2);
-            campIndex2++;
-        }
+    for (int i = 0; i < 50; i++) {
+        const int column = i % 5;
+        const int row = i / 5;
 
-        qDebug() << chess.chess.name() << " " << chess.side << " " << chess.position;
+        if (i == 11 || i == 13 || i == 17 || i == 21 || i == 23) {
+            chesses[i]->setPosition(ChessPoint(10, campIndex1));
+            this->_chesses[50 + campIndex1] = chesses[i];
+            campIndex1++;
+        } else if (i == 36 || i == 38 || i == 42 || i == 46 || i == 48) {
+            chesses[i]->setPosition(ChessPoint(11, campIndex2));
+            this->_chesses[55 + campIndex2] = chesses[i];
+            campIndex2++;
+        } else {
+            chesses[i]->setPosition(ChessPoint(row, column));
+            this->_chesses[i] = chesses[i];
+        }
     }
 
-    this->chesses = chesses;
+
+    for (auto chess : this->_chesses) {
+        if (chess) {
+            qDebug() << chess->name() << " " << chess->side() << " " << chess->position();
+        }
+    }
+}
+
+bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) {
+    auto sourceChess = _chesses[indexOfPoint(source)];
+    auto destChess = _chesses[indexOfPoint(dest)];
+
+    assert(sourceChess != nullptr);
+
+    if (!sourceChess->isMovable()) {
+        return false;
+    }
+
+    if (!destChess) {
+        return true;
+    }
+
+    if (!sourceChess->allowingMoveTo(dest)) {
+        return false;
+    }
+
+    return sourceChess->encounter(*destChess) != Chess::EncounterResult::Failure;
+}
+
+QVector<const Chess *> ChessGame::chesses() const {
+    QVector<const Chess *> constChesses;
+
+    for (auto chess : _chesses) {
+        constChesses.append(chess);
+    }
+
+    return constChesses;
 }

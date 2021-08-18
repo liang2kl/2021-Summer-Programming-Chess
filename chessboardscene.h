@@ -7,8 +7,14 @@
 #include <QResizeEvent>
 #include <QGraphicsSceneMouseEvent>
 
+#include "chessgame.h"
+
 class ChessboardScene : public QGraphicsScene {
     Q_OBJECT
+
+private:
+    QVector<QGraphicsItem *> rectItems = QVector<QGraphicsItem *>(60);
+    QVector<QGraphicsItem *> chessItems = QVector<QGraphicsItem *>(60);
 
 private:
     // Drawing
@@ -17,6 +23,8 @@ private:
     void drawRects(const QVector<QPoint>& cellCenters);
     void drawCircles(const QVector<QPoint>& cellCenters);
     void drawBoardBackground(const QVector<QPoint> &cellCenters);
+
+    void drawChesses(const QVector<QPoint>& cellCenters);
 
     void _drawRoad(const QLine &line);
     void _drawRailway(const QLine &line);

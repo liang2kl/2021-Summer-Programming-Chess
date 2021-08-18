@@ -16,15 +16,31 @@ void ChessboardScene::drawScene() {
     drawLines(points);
     drawRects(points);
     drawCircles(points);
+    drawChesses(points);
 
     emit didFinishRender();
+}
+
+void ChessboardScene::drawChesses(const QVector<QPoint>& cellCenters) {
+    const QVector<const Chess*> chesses = ChessGame::shared->chesses();
+
+    const int size = cellCenters.size();
+
+    for (int i = 0; i < size; i++) {
+        const auto *chess = chesses[i];
+        if (chess) {
+            auto *item = this->addText(chess->name());
+
+            item->setPos(cellCenters[i]);
+        }
+    }
 }
 
 void ChessboardScene::drawRects(const QVector<QPoint>& cellCenters) {
     const int size = cellCenters.size();
     for (int i = 0; i < size; i++) {
         bool skip = false;
-        for (const QPoint& coordinate : Constant::campCoordinates) {
+        for (const QPoint& coordinate : ChessPoint::CAMP_POINTS) {
             if (coordinate.x() * 5 + coordinate.y() == i) {
                 skip = true;
                 break;
@@ -47,7 +63,7 @@ void ChessboardScene::drawRects(const QVector<QPoint>& cellCenters) {
 void ChessboardScene::drawCircles(const QVector<QPoint> &cellCenters) {
     const float radius = circleRadius();
 
-    for (const QPoint& coordinate : Constant::campCoordinates) {
+    for (const QPoint& coordinate : ChessPoint::CAMP_POINTS) {
         const int index = coordinate.x() * 5 + coordinate.y();
         const QPoint center = cellCenters[index];
 
@@ -107,7 +123,7 @@ void ChessboardScene::drawLines(const QVector<QPoint> &cellCenters) {
     }
 
     // Inclined
-    for (const auto &coordinate : Constant::campCoordinates) {
+    for (const auto &coordinate : ChessPoint::CAMP_POINTS) {
         if (coordinate.y() == 2) { continue; }
         const int index1 = (coordinate.x() - 1) * 5 + coordinate.y() - 1;
         const int index2 = (coordinate.x() + 1) * 5 + coordinate.y() + 1;

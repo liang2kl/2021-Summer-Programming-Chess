@@ -11,12 +11,15 @@ CONFIG += c++11
 SOURCES += \
     chessboardscene.cpp \
     chessboardview.cpp \
+    chessgame.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    chess.h \
     chessboardscene.h \
     chessboardview.h \
+    chessgame.h \
     constants.h \
     dropshadoweffect.h \
     mainwindow.h

@@ -11,17 +11,9 @@ class ChessboardScene : public QGraphicsScene {
     Q_OBJECT
 
 private:
-    const QVector<QPoint> CIRCLE_COORDINATES = {
-        QPoint(2, 1), QPoint(2, 3),
-        QPoint(3, 2), QPoint(4, 1),
-        QPoint(4, 3), QPoint(7, 1),
-        QPoint(7, 3), QPoint(8, 2),
-        QPoint(9, 1), QPoint(9, 3)
-    };
-
     // Drawing
     void drawScene();
-    void drawRoads(const QVector<QPoint>& cellCenters);
+    void drawLines(const QVector<QPoint>& cellCenters);
     void drawRects(const QVector<QPoint>& cellCenters);
     void drawCircles(const QVector<QPoint>& cellCenters);
     void drawBoardBackground(const QVector<QPoint> &cellCenters);
@@ -37,7 +29,7 @@ private:
     const float CIRCLE_RADIUS_RATIO = 0.65;
 
     int _cellHeight;
-    void setCellHeight(int height) { _cellHeight = height; }
+
     int cellHeight() {
         return _cellHeight;
     }
@@ -52,6 +44,9 @@ private:
     }
     int centerVerticalSpacing() {
         return _cellHeight * CENTER_VERTICAL_SPACING_RATIO;
+    }
+    int circleRadius() {
+        return _cellHeight * CIRCLE_RADIUS_RATIO;
     }
 
     QVector<QPoint> generateCellData();

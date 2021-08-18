@@ -11,10 +11,12 @@ ChessboardView::ChessboardView() {
     setMinimumHeight(800);
     setBackgroundBrush(Constant::backgroundColor);
     setResizeAnchor(ViewportAnchor::AnchorViewCenter);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 void ChessboardView::sceneDidFinishRender() {
-//    resize(scene()->itemsBoundingRect().width(), height());
     setFixedWidth(scene()->itemsBoundingRect().width());
 }
 

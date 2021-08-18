@@ -13,7 +13,7 @@ void ChessboardScene::drawScene() {
     QVector<QPoint> points = generateCellData();
 
     drawBoardBackground(points);
-    drawRoads(points);
+    drawLines(points);
     drawRects(points);
     drawCircles(points);
 
@@ -24,7 +24,7 @@ void ChessboardScene::drawRects(const QVector<QPoint>& cellCenters) {
     const int size = cellCenters.size();
     for (int i = 0; i < size; i++) {
         bool skip = false;
-        for (const QPoint& coordinate : CIRCLE_COORDINATES) {
+        for (const QPoint& coordinate : Constant::campCoordinates) {
             if (coordinate.x() * 5 + coordinate.y() == i) {
                 skip = true;
                 break;
@@ -45,9 +45,9 @@ void ChessboardScene::drawRects(const QVector<QPoint>& cellCenters) {
 }
 
 void ChessboardScene::drawCircles(const QVector<QPoint> &cellCenters) {
-    const float radius = cellHeight() * CIRCLE_RADIUS_RATIO;
+    const float radius = circleRadius();
 
-    for (const QPoint& coordinate : CIRCLE_COORDINATES) {
+    for (const QPoint& coordinate : Constant::campCoordinates) {
         const int index = coordinate.x() * 5 + coordinate.y();
         const QPoint center = cellCenters[index];
 
@@ -69,11 +69,11 @@ void ChessboardScene::drawBoardBackground(const QVector<QPoint> &cellCenters) {
 
     this->addRect(0, 0, width, height, Constant::backgroundColor, Constant::backgroundColor);
 
-    this->addRect(QRect(cellCenters[0], cellCenters[29]), QPen(), Constant::overlayColor);
-    this->addRect(QRect(cellCenters[30], cellCenters[59]), QPen(), Constant::overlayColor);
+    this->addRect(QRect(cellCenters[0], cellCenters[29]), QPen(), Constant::cellFillColor);
+    this->addRect(QRect(cellCenters[30], cellCenters[59]), QPen(), Constant::cellFillColor);
 }
 
-void ChessboardScene::drawRoads(const QVector<QPoint> &cellCenters) {
+void ChessboardScene::drawLines(const QVector<QPoint> &cellCenters) {
 
     // Horizontal
     for (int i = 0; i < 12; i++) {
@@ -91,39 +91,33 @@ void ChessboardScene::drawRoads(const QVector<QPoint> &cellCenters) {
 
     // Vertical
     for (int i = 0; i < 5; i++) {
-        QLine line1(cellCenters[i],
-                   cellCenters[25 + i]);
+        QLine line1(cellCenters[i], cellCenters[25 + i]);
         _drawRoad(line1);
 
-        QLine line2(cellCenters[30 + i],
-                   cellCenters[55 + i]);
+        QLine line2(cellCenters[30 + i], cellCenters[55 + i]);
         _drawRoad(line2);
 
         if (i == 0 || i == 4) {
-            QLine line(cellCenters[5 + i],
-                       cellCenters[50 + i]);
+            QLine line(cellCenters[5 + i], cellCenters[50 + i]);
             _drawRailway(line);
         } else if (i == 2) {
-            QLine line(cellCenters[27],
-                       cellCenters[32]);
+            QLine line(cellCenters[27], cellCenters[32]);
             _drawRailway(line);
         }
     }
 
     // Inclined
-    for (const auto &coordinate : CIRCLE_COORDINATES) {
+    for (const auto &coordinate : Constant::campCoordinates) {
         if (coordinate.y() == 2) { continue; }
         const int index1 = (coordinate.x() - 1) * 5 + coordinate.y() - 1;
         const int index2 = (coordinate.x() + 1) * 5 + coordinate.y() + 1;
         const int index3 = (coordinate.x() - 1) * 5 + coordinate.y() + 1;
         const int index4 = (coordinate.x() + 1) * 5 + coordinate.y() - 1;
 
-        QLine line1(cellCenters[index1],
-                   cellCenters[index2]);
+        QLine line1(cellCenters[index1], cellCenters[index2]);
         _drawRoad(line1);
 
-        QLine line2(cellCenters[index3],
-                   cellCenters[index4]);
+        QLine line2(cellCenters[index3], cellCenters[index4]);
         _drawRoad(line2);
     }
 }
@@ -174,12 +168,8 @@ void ChessboardScene::resizeEvent(QResizeEvent *event) {
 
 void ChessboardScene::setNewSize(const QSize &size) {
     float ratio = 12 + 12 * VERTICAL_SPACING_RATIO + CENTER_VERTICAL_SPACING_RATIO;
-    int cellHeight = size.height() / ratio * 0.97;
-    setCellHeight(cellHeight);
+    _cellHeight = size.height() / ratio * 0.97;
 }
 
 void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    qDebug() << event->scenePos() << "\n";
-    auto * item = itemAt(event->scenePos(), QTransform());
-    qDebug() << item << "\n";
 }

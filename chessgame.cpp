@@ -14,7 +14,7 @@ ChessGame::ChessGame() {
     int index = 0;
     for (int row = 1; row < 11; row++) {
         for (int column = 0; column < 5; column++) {
-            if (row != 1 && row != 10 && !(column == 0 || column == 4)) {
+            if (row != 1 && row != 10 && row != 5 && row != 6 && !(column == 0 || column == 4)) {
                 continue;
             }
 
@@ -26,6 +26,7 @@ ChessGame::ChessGame() {
     }
 
     railwayIndices = indices;
+    railwayIndexMap = map;
 }
 
 ChessGame * const ChessGame::shared = new ChessGame();
@@ -85,10 +86,8 @@ void ChessGame::randomize() {
 QVector<int> ChessGame::availablePointsFor(const Chess * chess) const {
     QVector<int> points;
 
-    Graph g = railwayGraph();
-
     for (int i = 0; i < 60; i++) {
-        if (_canMoveChess(chess->position(), ChessPoint(i / 5, i % 5), g)) {
+        if (canMoveChess(chess->position(), ChessPoint(i / 5, i % 5))) {
             points.append(i);
         }
     }
@@ -97,11 +96,7 @@ QVector<int> ChessGame::availablePointsFor(const Chess * chess) const {
 }
 
 bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) const {
-    return _canMoveChess(source, dest, railwayGraph());
-}
-
-bool ChessGame::_canMoveChess(const ChessPoint &source, const ChessPoint &dest, const Graph &railwayGraph) const {
-    // FIXME: Path to dest
+    auto g = railwayGraph(source.index(), dest.index());
     auto sourceChess = _chesses[source.index()];
     auto destChess = _chesses[dest.index()];
 
@@ -112,8 +107,11 @@ bool ChessGame::_canMoveChess(const ChessPoint &source, const ChessPoint &dest, 
     }
 
     if (!destChess) {
-//        qDebug() << "NOT" << dest;
-        return sourceChess->allowingMoveTo(dest);
+        if (source.isOnRailway() && dest.isOnRailway()) {
+            return allowingPointOnRailwayMoveTo(source, dest, sourceChess->type() == Chess::Type::Engineer, g);
+        } else {
+            return sourceChess->allowingMoveTo(dest);
+        }
     }
 
     if (!destChess->isFlipped()) {
@@ -129,11 +127,12 @@ bool ChessGame::_canMoveChess(const ChessPoint &source, const ChessPoint &dest, 
     // It takes special care for chesses that
     // can move over more than one slot.
     if (source.isOnRailway() && dest.isOnRailway()) {
-        if (!allowingPointOnRailwayMoveTo(source, dest, sourceChess->type() == Chess::Type::Engineer, railwayGraph)) {
+        if (!allowingPointOnRailwayMoveTo(source, dest, sourceChess->type() == Chess::Type::Engineer, g)) {
             return false;
         }
     }
 
+    // FIXME: Flag
     return sourceChess->encounter(*destChess) != Chess::EncounterResult::Failure;
 }
 
@@ -148,6 +147,7 @@ QVector<const Chess *> ChessGame::chesses() const {
 }
 
 // Call this after validating that the chess is allowed to move to the destination point.
+// The dest point must be included in the graph.
 bool ChessGame::allowingPointOnRailwayMoveTo(const ChessPoint &source, const ChessPoint &dest, bool isEngineer, const Graph &railwayGraph) const {
 
     if (source.x() == dest.x() && allowingHorizontallyMoveTo(source, dest)) {
@@ -162,6 +162,7 @@ bool ChessGame::allowingPointOnRailwayMoveTo(const ChessPoint &source, const Che
 
     // Engineer scenario
 
+    qDebug() << dest;
     return railwayGraph.isConnected(railwayIndexMap[indexOfPoint(source)], railwayIndexMap[indexOfPoint(dest)]);
 }
 
@@ -194,40 +195,60 @@ bool ChessGame::allowingHorizontallyMoveTo(const ChessPoint &source, const Chess
     return true;
 }
 
-Graph ChessGame::railwayGraph() const {
+Graph ChessGame::railwayGraph(int startIndex, int endIndex) const {
     Graph g = Graph(32);
 
-    int i = -1;
+    // Remove start vertex.
+    auto chesses = this->_chesses;
+    chesses[startIndex] = nullptr;
+    chesses[endIndex] = nullptr;
 
     auto fullRow = [](int r) -> bool {
         return r == 1 || r == 5 || r == 6 || r == 10;
     };
 
+    auto offsetsByPreviousRow = [fullRow](int row, int column) -> int {
+        assert(column == 0 || column == 4);
+        return column == 0 ?
+                    (fullRow(row - 1) ? 5 : 2) :
+                    (fullRow(row) ? 5 : 2);
+    };
+
+    int i = -1;
+
     for (int row = 1; row < 11; row++) {
         for (int column = 0; column < 5; column++) {
-            if (row != 1 && row != 10 && !(column == 0 || column == 4)) {
+            if (row != 1 && row != 10 && row != 5 && row != 6 && !(column == 0 || column == 4)) {
                 continue;
             }
             i += 1;
 
             int index = row * 5 + column;
             // Occupied
-            if (_chesses[index]) { continue; }
+            if (chesses[index]) { continue; }
 
             if (fullRow(row)) {
-                if (column != 4 && !_chesses[index + 1]) { g.addEdge(i, i + 1); }
-                if (column != 0 && !_chesses[index - 1]) { g.addEdge(i, i - 1); }
+                if (column != 4 && !chesses[index + 1]) {
+                    g.addEdge(i, i + 1);
+                }
+                if (column != 0 && !chesses[index - 1]) {
+                    g.addEdge(i, i - 1);
+                }
             }
 
             if (column == 0 || column == 4) {
-                if (row != 10 && !_chesses[index + 5]) { g.addEdge(i, i + (fullRow(row) ? 5 : 2)); }
-                if (row != 1 && !_chesses[index - 5]) { g.addEdge(i, i - (fullRow(row - 1) ? 5 : 2)); }
+                if (row != 10 && !chesses[index + 5]) {
+                    g.addEdge(i, i + offsetsByPreviousRow(row + 1, column));
+                }
+                if (row != 1 && !chesses[index - 5]) {
+                    g.addEdge(i, i - offsetsByPreviousRow(row, column));
+                }
             }
 
         }
     }
 
-    if (!_chesses[27] && !_chesses[32]) {
+    if (!chesses[27] && !chesses[32]) {
         g.addEdge(13, 18);
         g.addEdge(18, 13);
     }
@@ -246,6 +267,9 @@ void ChessGame::flipChess(const ChessPoint &pos) {
 
 void ChessGame::moveChess(const ChessPoint &source, const ChessPoint &dest) {
     assert(canMoveChess(source, dest));
+    assert((_state == BlueMove && _chesses[source.index()]->side() == Chess::Side::Blue) ||
+            (_state == RedMove && _chesses[source.index()]->side() == Chess::Side::Red));
+
     auto *srcChess = _chesses[indexOfPoint(source)];
     auto *desChess = _chesses[indexOfPoint(dest)];
 
@@ -280,12 +304,16 @@ void ChessGame::moveChess(const ChessPoint &source, const ChessPoint &dest) {
 // Game state
 
 void ChessGame::updateFlipState(Chess::Side side) {
+    // FIXME: 2 on start
     if (_state == Flip) {
         if (lastFlippedSide == side) {
             setState(side == Chess::Side::Red ? BlueMove : RedMove);
         } else {
             lastFlippedSide = side;
         }
+    } else {
+        // FIXME: Really reasonable to put it here?
+        setState(_state == RedMove ? BlueMove : RedMove);
     }
 }
 
@@ -293,7 +321,7 @@ void ChessGame::updateResultState() {
     assert(_state == BlueMove || _state == RedMove);
     // Flags
     bool redFlagExist = false;
-    bool blueFlagExist = true;
+    bool blueFlagExist = false;
     for (const auto *chess : _chesses) {
         if (!chess) { continue; }
         if (chess->type() == Chess::Type::Flag) {

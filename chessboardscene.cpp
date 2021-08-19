@@ -8,6 +8,7 @@ ChessboardScene::ChessboardScene(int initialHeight) {
     auto *game = ChessGame::shared;
     connect(game, &ChessGame::chessDidFlip, this, &ChessboardScene::chessGameDidFlipChess);
     connect(game, &ChessGame::chessDidMove, this, &ChessboardScene::chessGameDidMoveChess);
+    connect(game, &ChessGame::chessDidRemoved, this, &ChessboardScene::chessGameDidRemoveChess);
     connect(game, &ChessGame::stateDidChange, this, &ChessboardScene::chessGameDidChangeState);
     setNewSize(QSize(0, initialHeight));
     drawScene();
@@ -166,6 +167,8 @@ void ChessboardScene::_drawRailway(const QLine &line) {
     item2->setGraphicsEffect(new DropShadowEffect());
 }
 
+
+
 QVector<QPoint> ChessboardScene::generateCellData() {
     QVector<QPoint> points;
     for (int row = 0; row < 12; row++) {
@@ -201,50 +204,42 @@ void ChessboardScene::setNewSize(const QSize &size) {
 
 // No UI modification here!
 void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-    auto *item = itemAt(event->scenePos(), QTransform());
-    if (!item) { return; }
-
-    // Test
-    auto *ancestor = item;
-    while (ancestor->parentItem()) { ancestor = ancestor->parentItem(); }
-
-
-    for (auto *chessItem : chessItems) {
-        if (!chessItem) { continue; }
-        const int chessIndex = chessItem->chess()->position().index();
-
-        if (chessItem == ancestor) {
-
-            if (!chessItem->chess()->isFlipped()) {
-                ChessGame::shared->flipChess(chessIndex);
-                break;
-            }
-
-            if (__selectedIndex == -1) {
-                setSelectedIndex(chessIndex);
-                return;
-            } else if (__selectedIndex == chessIndex) {
-                setSelectedIndex(-1);
-                return;
-            }
-
-            break;
-        }
-    }
 
     for (int i = 0; i < containerItems.size(); i++) {
-        auto * cItem = containerItems[i];
-        if (item == cItem) {
-            if (__selectedIndex != -1 && __destPoints.contains(i)) {
-                ChessGame::shared->moveChess(__selectedIndex, i);
-            }
+        auto *item = containerItems[i];
 
+        if (item->contains(event->scenePos())) {
+            auto *chessItem = chessItems[i];
+
+            if (chessItem) {
+                if (!chessItem->chess()->isFlipped() && __selectedIndex == -1) {
+                    ChessGame::shared->flipChess(i);
+                    setSelectedIndex(-1);
+                } else if (__selectedIndex == -1 && movingSide() == chessItem->chess()->side()) {
+                    setSelectedIndex(i);
+                } else if (__selectedIndex == i) {
+                    setSelectedIndex(-1);
+                } else if (__destPoints.contains(i)) {
+                    ChessGame::shared->moveChess(__selectedIndex, i);
+                    setSelectedIndex(-1);
+                } // Else, do nothing.
+            } else {
+                if (__destPoints.contains(i)) {
+                    ChessGame::shared->moveChess(__selectedIndex, i);
+                    setSelectedIndex(-1);
+                } // Else, do nothing.
+            }
             break;
         }
+
     }
+
 }
 
 void ChessboardScene::setSelectedIndex(int i) {
+    qDebug() << "Selected Item:" << i << ChessPoint(i);
+    __selectedIndex = i;
+
     if (i == -1) {
         setDestPoints({});
         return;
@@ -253,8 +248,6 @@ void ChessboardScene::setSelectedIndex(int i) {
     auto chesses = ChessGame::shared->chesses();
     auto points = ChessGame::shared->availablePointsFor(chesses[i]);
     setDestPoints(points);
-
-    __selectedIndex = i;
 }
 
 void ChessboardScene::setDestPoints(const QVector<int> points) {
@@ -264,32 +257,57 @@ void ChessboardScene::setDestPoints(const QVector<int> points) {
     }
     highlightItems = {};
 
-//    for (auto point : points) {
-//        QPoint center = cellCenters[point];
-//        auto *newItem = addRect(
-//                    center.x() - cellWidth() / 2,
-//                    center.y() - cellHeight() / 2,
-//                    cellWidth(),
-//                    cellHeight(),
-//                    QPen(Constant::yellow, cellHeight() / 10),
-//                    Qt::NoBrush);
+    for (auto point : points) {
+        QPoint center = cellCenters[point];
 
-//        highlightItems.append(newItem);
-//    }
+        QGraphicsItem *newItem;
+        if (ChessPoint(point).isCamp()) {
+            const float radius = circleRadius();
+
+            newItem = addEllipse(
+                        center.x() - radius,
+                        center.y() - radius,
+                        radius * 2,
+                        radius * 2,
+                        QPen(Constant::yellow, cellHeight() / 10),
+                        Qt::NoBrush);
+        } else {
+            newItem = addRect(
+                        center.x() - cellWidth() / 2,
+                        center.y() - cellHeight() / 2,
+                        cellWidth(),
+                        cellHeight(),
+                        QPen(Constant::yellow, cellHeight() / 10),
+                        Qt::NoBrush);
+        }
+
+        highlightItems.append(newItem);
+    }
     __destPoints = points;
 }
 
 // Respond to signals from the game model. The only place where
 // UI could be modified.
 void ChessboardScene::chessGameDidFlipChess(const ChessPoint &pos) {
+    qDebug() << "Flipped Chess" << pos;
     chessItems[pos.index()]->toggleSide();
 }
 
 void ChessboardScene::chessGameDidMoveChess(const ChessPoint &source, const ChessPoint &dest) {
-    qDebug() << "HERE" << chessItems.size();
+    qDebug() << "Move Chess from" << source << "to" << dest;
 
     chessItems[source.index()]->setPos(cellCenters[dest.index()].x() - cellWidth() / 2,
                        cellCenters[dest.index()].y() - cellHeight() / 2);
+
+    auto *item = chessItems[source.index()];
+    chessItems[source.index()] = chessItems[dest.index()];
+    chessItems[dest.index()] = item;
+}
+
+void ChessboardScene::chessGameDidRemoveChess(const ChessPoint &pos) {
+    removeItem(chessItems[pos.index()]);
+    delete chessItems[pos.index()];
+    chessItems[pos.index()] = nullptr;
 }
 
 void ChessboardScene::chessGameDidChangeState(ChessGame::State state) {

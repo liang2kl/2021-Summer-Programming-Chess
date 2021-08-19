@@ -18,17 +18,21 @@ private:
     QVector<ChessGraphicsItem *> chessItems = QVector<ChessGraphicsItem *>(60);
     QVector<QGraphicsItem *> highlightItems;
 private:
-    // Drawing
+    // Initial drawing
     void drawScene();
     void drawLines(const QVector<QPoint>& cellCenters);
     void drawRects(const QVector<QPoint>& cellCenters);
     void drawCircles(const QVector<QPoint>& cellCenters);
     void drawBoardBackground(const QVector<QPoint> &cellCenters);
 
-    void drawChesses(const QVector<QPoint>& cellCenters);
-
     void _drawRoad(const QLine &line);
     void _drawRailway(const QLine &line);
+
+    // In-game drawing
+    void drawHighlightItems();
+    void drawSelectionIndicator();
+    void drawChesses(const QVector<QPoint>& cellCenters);
+
 
     // Geometry
     const float CELL_WIDTH_RATIO = 2;
@@ -71,6 +75,7 @@ public slots:
     void chessGameDidChangeState(ChessGame::State state);
     void chessGameDidFlipChess(const ChessPoint &pos);
     void chessGameDidMoveChess(const ChessPoint &source, const ChessPoint &dest);
+    void chessGameDidRemoveChess(const ChessPoint &pos);
 
 signals:
     void didFinishRender();

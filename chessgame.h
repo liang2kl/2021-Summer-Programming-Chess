@@ -27,10 +27,9 @@ private:
     bool allowingPointOnRailwayMoveTo(const ChessPoint &source, const ChessPoint &dest, bool isEngineer, const Graph &railwayGraph) const;
     bool allowingVerticallyMoveTo(const ChessPoint &source, const ChessPoint &dest) const;
     bool allowingHorizontallyMoveTo(const ChessPoint &source, const ChessPoint &dest) const;
-    bool _canMoveChess(const ChessPoint &source, const ChessPoint &dest, const Graph &railwayGraph) const;
 
 
-    Graph railwayGraph() const;
+    Graph railwayGraph(int startIndex, int endIndex) const;
     int graphIndexToIndex() const;
 
 public:
@@ -53,7 +52,7 @@ public:
     State state() { return _state; }
 
 private:
-    State _state;
+    State _state = Flip;
     int lastFlippedSide = -1;
     void updateFlipState(Chess::Side side);
     void updateResultState();

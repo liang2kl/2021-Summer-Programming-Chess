@@ -36,6 +36,8 @@ Chess::EncounterResult Chess::encounter(Chess anotherChess) {
     return _type > another ? Success : Failure;
 }
 
+// Whether the moving rule allows this chess to move to a destination point.
+// This does not indicate that the chess can actually move to that point.
 bool Chess::allowingMoveTo(const ChessPoint &dest) {
     assert(isMovable());
 
@@ -49,7 +51,9 @@ bool Chess::allowingMoveTo(const ChessPoint &dest) {
 
     if (!_position.isOnRailway()) { return false; }
 
-    if (_position.x() == dest.x()) { return true; }
+    if (_position.x() == dest.x() && (_position.x() == 1 || _position.x() == 5 || _position
+                                      .x() == 6 || _position.x() == 10)) { return true; }
+
     if ((_position.y() == 0 && dest.y() == 0) ||
             (_position.y() == 4 && dest.y() == 4)) {
         return true;

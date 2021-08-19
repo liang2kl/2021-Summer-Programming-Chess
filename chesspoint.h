@@ -15,5 +15,4 @@ public:
     bool isAround(const ChessPoint &another) const;
 };
 
-
 #endif // CHESSPOINT_H

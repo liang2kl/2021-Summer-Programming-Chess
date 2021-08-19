@@ -1,11 +1,12 @@
 #include "chessgraphicsitem.h"
+#include "constants.h"
 #include <QFont>
 #include <QBrush>
 
 ChessGraphicsItem::ChessGraphicsItem(const Chess *chess, const QSizeF &size, bool isBack)
-    : isBack(isBack) {
+    : _chess(chess), isBack(isBack) {
     auto *frontRectItem = new QGraphicsRectItem(QRectF(QPointF(), size));
-    frontRectItem->setBrush(chess->side() == Chess::Side::Blue ? Qt::blue : Qt::red);
+    frontRectItem->setBrush(chess->side() == Chess::Side::Blue ? Constant::blue : Constant::red);
     auto *frontTextItem = new QGraphicsTextItem(chess->name());
 
     auto *frontItemGroup = new QGraphicsItemGroup();

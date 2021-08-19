@@ -27,6 +27,7 @@ HEADERS += \
     chesspoint.h \
     constants.h \
     dropshadoweffect.h \
+    graph.h \
     mainwindow.h
 
 # Default rules for deployment.

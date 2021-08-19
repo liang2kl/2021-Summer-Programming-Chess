@@ -37,6 +37,7 @@ private:
     const float CENTER_VERTICAL_SPACING_RATIO = 3;
     const float CIRCLE_RADIUS_RATIO = 0.65;
 
+    QVector<QPoint> cellCenters;
     int _cellHeight;
 
     int cellHeight() {

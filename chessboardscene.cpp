@@ -10,13 +10,13 @@ ChessboardScene::ChessboardScene(int initialHeight) {
 }
 
 void ChessboardScene::drawScene() {
-    QVector<QPoint> points = generateCellData();
+    cellCenters = generateCellData();
 
-    drawBoardBackground(points);
-    drawLines(points);
-    drawRects(points);
-    drawCircles(points);
-    drawChesses(points);
+    drawBoardBackground(cellCenters);
+    drawLines(cellCenters);
+    drawRects(cellCenters);
+    drawCircles(cellCenters);
+    drawChesses(cellCenters);
 
     emit didFinishRender();
 }
@@ -29,7 +29,7 @@ void ChessboardScene::drawChesses(const QVector<QPoint>& cellCenters) {
     for (int i = 0; i < size; i++) {
         const auto *chess = chesses[i];
         if (chess) {
-            auto *item = new ChessGraphicsItem(chess, QSizeF(cellWidth(), cellHeight()));
+            auto *item = new ChessGraphicsItem(chess, QSizeF(cellWidth(), cellHeight()), false);
             item->setPos(cellCenters[i].x() - cellWidth() / 2,
                          cellCenters[i].y() - cellHeight() / 2);
 
@@ -192,17 +192,30 @@ void ChessboardScene::setNewSize(const QSize &size) {
     _cellHeight = size.height() / ratio * 0.97;
 }
 
+// No UI modification here!
 void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     auto *item = itemAt(event->scenePos(), QTransform());
     if (!item) { return; }
 
+    // Test
     auto *ancestor = item;
     while (ancestor->parentItem()) { ancestor = ancestor->parentItem(); }
 
+
     for (auto *chessItem : chessItems) {
         if (chessItem == ancestor) {
-            chessItem->toggleSide();
+//            chessItem->toggleSide();
+            auto points = ChessGame::shared->availablePointsFor(chessItem->chess());
+            for (const auto &point : points) {
+                addRect(cellCenters[point].x() - cellWidth() / 2,
+                        cellCenters[point].y() - cellHeight() / 2,
+                        cellWidth(),
+                        cellHeight(),
+                        QPen(Constant::yellow, cellHeight() / 12),
+                        Qt::NoBrush);
+            }
             break;
         }
     }
+
 }

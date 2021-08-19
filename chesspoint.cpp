@@ -1,4 +1,5 @@
 #include "chesspoint.h"
+#include <QDebug>
 
 const QVector<ChessPoint> ChessPoint::CAMP_POINTS = {
     ChessPoint(2, 1), ChessPoint(2, 3),
@@ -18,7 +19,7 @@ bool ChessPoint::isCamp() const {
 }
 
 bool ChessPoint::isOnRailway() const {
-    if (x() == 5 || x() == 6) { return true; }
+    if (x() == 1 || x() == 10 || x() == 5 || x() == 6) { return true; }
     if (y() == 0 || y() == 4) {
         return x() != 0 && x() != 11;
     }

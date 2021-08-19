@@ -42,7 +42,7 @@ public:
     Type type() const { return _type; }
     ChessPoint position() const { return _position; }
     Side side() const { return _side; }
-    bool isFlipped() { return _isFlipped; }
+    bool isFlipped() const { return _isFlipped; }
 
     void setPosition(const ChessPoint &position) { _position = position; }
     void flip() { _isFlipped = true; }

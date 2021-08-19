@@ -16,7 +16,7 @@ class ChessboardScene : public QGraphicsScene {
 private:
     QVector<QGraphicsItem *> containerItems = QVector<QGraphicsItem *>(60);
     QVector<ChessGraphicsItem *> chessItems = QVector<ChessGraphicsItem *>(60);
-
+    QVector<QGraphicsItem *> highlightItems;
 private:
     // Drawing
     void drawScene();
@@ -64,12 +64,26 @@ private:
 
     void mousePressEvent(QGraphicsSceneMouseEvent *);
 
-
 public slots:
     void resizeEvent(QResizeEvent * event);
 
+    // Respond to model signals.
+    void chessGameDidChangeState(ChessGame::State state);
+    void chessGameDidFlipChess(const ChessPoint &pos);
+    void chessGameDidMoveChess(const ChessPoint &source, const ChessPoint &dest);
+
 signals:
     void didFinishRender();
+
+// State
+private:
+    // TODO: Update for multiusers.
+    int __selectedIndex = -1;
+    QVector<int> __destPoints;
+    void setSelectedIndex(int i);
+    void setDestPoints(const QVector<int>);
+    bool isMovable();
+    Chess::Side movingSide();
 
 public:
     ChessboardScene(int initialHeight = 600);

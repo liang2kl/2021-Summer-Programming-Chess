@@ -8,8 +8,9 @@
 #include <QVector>
 #include <QObject>
 #include <QMap>
+#include <QQueue>
 
-class ChessGame: QObject {
+class ChessGame: public QObject {
     Q_OBJECT
 
 private:
@@ -31,9 +32,6 @@ private:
 
     Graph railwayGraph() const;
     int graphIndexToIndex() const;
-signals:
-    void chessDidMove(const ChessPoint &source, const ChessPoint &dest);
-    void chessDidRemoved(const ChessPoint &point);
 
 public:
     QVector<int> availablePointsFor(const Chess *) const;
@@ -41,9 +39,32 @@ public:
     QVector<const Chess *> chesses() const;
     void randomize();
     // Game singleton
-    static const ChessGame *shared;
-};
+    static ChessGame * const shared;
 
+// Playing
+public:
+    void flipChess(const ChessPoint &pos);
+    void moveChess(const ChessPoint &source, const ChessPoint &dest);
+
+// Game state
+public:
+    enum State { Flip, BlueMove, RedMove, BlueWin, RedWin };
+
+    State state() { return _state; }
+
+private:
+    State _state;
+    int lastFlippedSide = -1;
+    void updateFlipState(Chess::Side side);
+    void updateResultState();
+    void setState(State state);
+
+signals:
+    void chessDidFlip(const ChessPoint &pos);
+    void chessDidMove(const ChessPoint &source, const ChessPoint &dest);
+    void chessDidRemoved(const ChessPoint &point);
+    void stateDidChange(State state, State oldState);
+};
 
 
 #endif // CHESSGAME_H

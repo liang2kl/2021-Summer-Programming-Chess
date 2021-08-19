@@ -6,9 +6,8 @@
 #include "constants.h"
 
 ChessGame::ChessGame() {
-//    randomize();
-    _chesses[5] = new Chess(Chess::Type::Bomb, Chess::Side::Red, ChessPoint(1, 0));
-
+    randomize();
+//    _chesses[5] = new Chess(Chess::Type::Bomb, Chess::Side::Red, ChessPoint(1, 0));
 
     QVector<int> indices;
     QMap<int, int> map;
@@ -29,7 +28,7 @@ ChessGame::ChessGame() {
     railwayIndices = indices;
 }
 
-const ChessGame *ChessGame::shared = new ChessGame();
+ChessGame * const ChessGame::shared = new ChessGame();
 
 void ChessGame::randomize() {
     QVector<Chess *> chesses;
@@ -81,10 +80,6 @@ void ChessGame::randomize() {
             this->_chesses[i] = chesses[i];
         }
     }
-
-    for (int i = 0; i < 10; i++) {
-        this->_chesses[i] = nullptr;
-    }
 }
 
 QVector<int> ChessGame::availablePointsFor(const Chess * chess) const {
@@ -107,8 +102,8 @@ bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) c
 
 bool ChessGame::_canMoveChess(const ChessPoint &source, const ChessPoint &dest, const Graph &railwayGraph) const {
     // FIXME: Path to dest
-    auto sourceChess = _chesses[indexOfPoint(source)];
-    auto destChess = _chesses[indexOfPoint(dest)];
+    auto sourceChess = _chesses[source.index()];
+    auto destChess = _chesses[dest.index()];
 
     assert(sourceChess != nullptr);
 
@@ -238,4 +233,94 @@ Graph ChessGame::railwayGraph() const {
     }
 
     return g;
+}
+
+// Playing
+
+void ChessGame::flipChess(const ChessPoint &pos) {
+    auto *chess = _chesses[indexOfPoint(pos)];
+    chess->flip();
+    emit chessDidFlip(pos);
+    updateFlipState(chess->side());
+}
+
+void ChessGame::moveChess(const ChessPoint &source, const ChessPoint &dest) {
+    assert(canMoveChess(source, dest));
+    auto *srcChess = _chesses[indexOfPoint(source)];
+    auto *desChess = _chesses[indexOfPoint(dest)];
+
+    if (!desChess) {
+        srcChess->setPosition(dest);
+        _chesses[indexOfPoint(dest)] = _chesses[indexOfPoint(source)];
+        _chesses[indexOfPoint(source)] = nullptr;
+        emit chessDidMove(source, dest);
+    } else {
+        auto result = srcChess->encounter(*desChess);
+
+        if (result == Chess::EncounterResult::Success) {
+            srcChess->setPosition(dest);
+            _chesses[indexOfPoint(dest)] = _chesses[indexOfPoint(source)];
+            _chesses[indexOfPoint(source)] = nullptr;
+
+            emit chessDidRemoved(dest);
+            emit chessDidMove(source, dest);
+        } else {
+            _chesses[indexOfPoint(dest)] = nullptr;
+            _chesses[indexOfPoint(source)] = nullptr;
+
+            emit chessDidRemoved(dest);
+            emit chessDidRemoved(source);
+        }
+    }
+
+    updateResultState();
+}
+
+
+// Game state
+
+void ChessGame::updateFlipState(Chess::Side side) {
+    if (_state == Flip) {
+        if (lastFlippedSide == side) {
+            setState(side == Chess::Side::Red ? BlueMove : RedMove);
+        } else {
+            lastFlippedSide = side;
+        }
+    }
+}
+
+void ChessGame::updateResultState() {
+    assert(_state == BlueMove || _state == RedMove);
+    // Flags
+    bool redFlagExist = false;
+    bool blueFlagExist = true;
+    for (const auto *chess : _chesses) {
+        if (!chess) { continue; }
+        if (chess->type() == Chess::Type::Flag) {
+            if (chess->side() == Chess::Side::Red) {
+                redFlagExist = true;
+            } else {
+                blueFlagExist = true;
+            }
+        }
+    }
+
+    if (!redFlagExist) {
+        setState(BlueWin);
+        return;
+    }
+    if (!blueFlagExist) {
+        setState(RedWin);
+        return;
+    }
+
+    // TODO: Not movable
+
+    // Toggle movable side
+    setState(_state == RedMove ? BlueMove : RedMove);
+}
+
+void ChessGame::setState(State state) {
+    emit stateDidChange(state, _state);
+    _state = state;
 }

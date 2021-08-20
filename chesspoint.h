@@ -3,6 +3,7 @@
 
 #include <QPoint>
 #include <QVector>
+#include <QDataStream>
 
 struct ChessPoint: public QPoint {
 public:
@@ -15,6 +16,9 @@ public:
     bool isCamp() const;
     bool isOnRailway() const;
     bool isAround(const ChessPoint &another) const;
+
+    friend QDataStream& operator<<(QDataStream &stream, const ChessPoint &point);
+    friend QDataStream& operator>>(QDataStream &stream, ChessPoint &point);
 };
 
 #endif // CHESSPOINT_H

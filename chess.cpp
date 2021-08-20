@@ -21,13 +21,15 @@ bool Chess::isMovable() const {
     return _type != Landmine && _type != Flag;
 }
 
+// Call this after ensuring that the two chesses
+// can encounter. For example, a flag should
+// not be encountered when landmine exists.
 Chess::EncounterResult Chess::encounter(Chess anotherChess) const {
-    // FIXME: Flag
     assert(_side != anotherChess._side);
 
     Type another = anotherChess.type();
-    // These type of chesses cannot move
-    assert(_type != Landmine && _type != Flag);
+
+    assert(isMovable());
 
     if (_type == Bomb) { return Draw; }
     if (_type == Engineer && another == Landmine) {
@@ -69,4 +71,14 @@ bool Chess::allowingMoveTo(const ChessPoint &dest) {
     }
 
     return false;
+}
+
+QDataStream &operator<<(QDataStream &stream, const Chess &chess) {
+    stream << qint32(chess.type()) << qint32(chess.side()) << chess.position();
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, Chess &chess) {
+    stream >> chess._type >> chess._side >> chess._position;
+    return stream;
 }

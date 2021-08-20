@@ -11,6 +11,7 @@ namespace Constant {
     const QColor blue = QColor(0x2c7cf6);
     const QColor red = QColor(0xec4d3d);
     const QColor yellow = QColor(0xf9cc46);
+    const quint16 portNumber = 10086;
 }
 
 #endif // CONSTANTS_H

@@ -123,6 +123,13 @@ bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) c
 
     if (dest.isCamp()) { return false; }
 
+    // Special care for Flags.
+    if (destChess->type() == Chess::Type::Flag) {
+        if (!isLandmineCleared(destChess->side())) {
+            return false;
+        }
+    }
+
     if (!sourceChess->allowingMoveTo(dest)) {
         return false;
     }
@@ -135,7 +142,6 @@ bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) c
         }
     }
 
-    // FIXME: Flag
     return sourceChess->encounter(*destChess) != Chess::EncounterResult::Failure;
 }
 
@@ -206,6 +212,29 @@ bool ChessGame::allowingHorizontallyMoveTo(const ChessPoint &source, const Chess
         }
     }
     return true;
+}
+
+bool ChessGame::isLandmineCleared(Chess::Side side) const {
+    for (auto *chess : _chesses) {
+        if (chess &&
+            chess->side() == side &&
+            chess->type() == Chess::Type::Landmine) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool ChessGame::chessCanChangePosition(const Chess *chess) {
+    if (!chess->isMovable()) { return false; }
+
+    for (int i = 0; i < 60; i++) {
+        if (canMoveChess(chess->position(), i)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 Graph ChessGame::railwayGraph(int startIndex, int endIndex) const {
@@ -317,8 +346,8 @@ void ChessGame::moveChess(const ChessPoint &source, const ChessPoint &dest) {
 // Game state
 
 void ChessGame::updateFlipState(Chess::Side side) {
-    // FIXME: 2 on start
     if (_state == Flip) {
+        // FIXME: 2 on start
         if (lastFlippedSide == side) {
             setState(side == Chess::Side::Red ? BlueMove : RedMove);
         } else {
@@ -355,8 +384,36 @@ void ChessGame::updateResultState() {
         return;
     }
 
+    // Movable Logic
+    bool canRedMove = false;
+    bool canBlueMove = false;
+    for (auto *chess : _chesses) {
+        if (!chess) { continue; }
+        if (canRedMove && chess->side() == Chess::Side::Red) {
+            continue;
+        }
+        if (canBlueMove && chess->side() == Chess::Side::Blue) {
+            continue;
+        }
+        if (chessCanChangePosition(chess)) {
+            if (chess->side() == Chess::Side::Red) {
+                canRedMove = true;
+            } else {
+                canBlueMove = true;
+            }
+        }
+    }
+
+    assert(canRedMove || canBlueMove);
+    if (!canRedMove) {
+        setState(BlueWin);
+        return;
+    } else if (!canBlueMove) {
+        setState(RedWin);
+        return;
+    }
+
     // TODO: Other Logic
-    // TODO: Not movable
 
     // Toggle movable side
     setState(_state == RedMove ? BlueMove : RedMove);

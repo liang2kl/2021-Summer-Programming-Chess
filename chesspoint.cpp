@@ -48,3 +48,17 @@ bool ChessPoint::isAround(const ChessPoint &another) const {
 
     return false;
 }
+
+QDataStream& operator<<(QDataStream &stream, const ChessPoint &point) {
+    stream << qint32(point.x()) << qint32(point.y());
+    return stream;
+}
+
+QDataStream& operator>>(QDataStream &stream, ChessPoint &point) {
+    qint32 x, y;
+    stream >> x >> y;
+
+    point.setX(x);
+    point.setY(y);
+    return stream;
+}

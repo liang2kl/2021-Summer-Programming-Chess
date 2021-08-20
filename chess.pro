@@ -1,4 +1,5 @@
 QT       += core gui
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,6 +14,9 @@ SOURCES += \
     chessboardscene.cpp \
     chessboardview.cpp \
     chessgame.cpp \
+    chessgamenetworkbase.cpp \
+    chessgamenetworkclient.cpp \
+    chessgamenetworkserver.cpp \
     chessgamepanelview.cpp \
     chessgameview.cpp \
     chessgraphicsitem.cpp \
@@ -24,6 +28,9 @@ HEADERS += \
     chessboardscene.h \
     chessboardview.h \
     chessgame.h \
+    chessgamenetworkbase.h \
+    chessgamenetworkclient.h \
+    chessgamenetworkserver.h \
     chessgamepanelview.h \
     chessgameview.h \
     chessgraphicsitem.h \

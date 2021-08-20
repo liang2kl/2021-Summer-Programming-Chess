@@ -3,11 +3,13 @@
 
 #include <QString>
 #include <QPoint>
+#include <QDataStream>
 #include "chesspoint.h"
 
 class Chess {
 public:
     enum Type {
+        Flag,
         Engineer, /*工兵*/
         PlatoonCommander, /*排长*/
         CompanyCommander, /*连长*/
@@ -19,7 +21,6 @@ public:
         Commander, /*司令*/
         Bomb,
         Landmine,
-        Flag
     };
 
     enum Side { Blue, Red };
@@ -30,18 +31,19 @@ public:
 
 private:
     Type _type;
-    ChessPoint _position;
     Side _side;
+    ChessPoint _position;
     bool _isFlipped = false;
 
 public:
     Chess() {}
     Chess(Type type, Side side, ChessPoint position = ChessPoint()):
-        _type(type), _position(position), _side(side) {}
+        _type(type), _side(side), _position(position) {}
 
     Type type() const { return _type; }
     ChessPoint position() const { return _position; }
     Side side() const { return _side; }
+    Side reversedSide() const { return _side == Red ? Blue : Red; }
     bool isFlipped() const { return _isFlipped; }
 
     void setPosition(const ChessPoint &position) { _position = position; }
@@ -55,6 +57,9 @@ public:
 
     // Having no assertion about whether the points are valid.
     bool allowingMoveTo(const ChessPoint &dest);
+
+    friend QDataStream &operator<<(QDataStream &stream, const Chess &chess);
+    friend QDataStream &operator>>(QDataStream &stream, Chess &chess);
 };
 
 #endif // CHESS_H

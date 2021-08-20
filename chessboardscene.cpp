@@ -252,7 +252,7 @@ void ChessboardScene::setNewSize(const QSize &size) {
     __cellHeight = size.height() / ratio * 0.97;
 }
 
-// No UI modification here! Just interacting with the model.
+// No model-relevant UI modification here! Just interacting with the model.
 void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
     for (int i = 0; i < containerItems.size(); i++) {
@@ -290,7 +290,7 @@ void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
 }
 
-// UI updates whose states are owned by the view.
+// Update UI whose states are owned by the view.
 void ChessboardScene::setSelectedIndex(int i) {
     qDebug() << "Selected Item:" << i << ChessPoint(i);
     __selectedIndex = i;
@@ -327,7 +327,7 @@ void ChessboardScene::setDestPoints(const QVector<int> points) {
 }
 
 // Respond to signals from the game model. The only place where
-// UI could be modified.
+// model-based UI could be modified.
 void ChessboardScene::chessGameDidFlipChess(const ChessPoint &pos) {
     qDebug() << "Flipped Chess" << pos;
     chessItems[pos]->toggleSide();

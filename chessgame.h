@@ -27,7 +27,10 @@ private:
     bool allowingPointOnRailwayMoveTo(const ChessPoint &source, const ChessPoint &dest, bool isEngineer, const Graph &railwayGraph) const;
     bool allowingVerticallyMoveTo(const ChessPoint &source, const ChessPoint &dest) const;
     bool allowingHorizontallyMoveTo(const ChessPoint &source, const ChessPoint &dest) const;
+    bool isLandmineCleared(Chess::Side side) const;
 
+    // Whether a chess has somewhere to go.
+    bool chessCanChangePosition(const Chess *chess);
 
     Graph railwayGraph(int startIndex, int endIndex) const;
 

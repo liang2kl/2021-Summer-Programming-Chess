@@ -31,7 +31,7 @@ Chess::EncounterResult Chess::encounter(Chess anotherChess) const {
 
     assert(isMovable());
 
-    if (_type == Bomb) { return Draw; }
+    if (_type == Bomb || anotherChess.type() == Bomb) { return Draw; }
     if (_type == Engineer && another == Landmine) {
         return Success;
     }

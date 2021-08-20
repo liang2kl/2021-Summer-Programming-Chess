@@ -9,7 +9,6 @@ class ChessGameNetworkBase : public QObject
     Q_OBJECT
 private:
     QTcpSocket *socket;
-    void sendBytes(QByteArray bytes);
 
 protected slots:
     void socketDidReceivedData();
@@ -21,6 +20,7 @@ protected:
     void connectToSocket(QTcpSocket *socket);
     void sendFlipChessData(const ChessPoint &pos, qint32 operationIndex);
     void sendMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
+    void sendBytes(QByteArray bytes);
 
 signals:
     void didReceiveFlipChessData(const ChessPoint &pos, qint32 operationIndex);

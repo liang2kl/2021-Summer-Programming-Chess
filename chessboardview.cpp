@@ -2,18 +2,17 @@
 #include "chessboardscene.h"
 #include "constants.h"
 
-ChessboardView::ChessboardView() {
+ChessboardView::ChessboardView(QWidget *parent) : QGraphicsView(parent) {
     chessboardScene = new ChessboardScene(800);
     setScene(chessboardScene);
     connect(this, &ChessboardView::didResize, chessboardScene, &ChessboardScene::resizeEvent);
     connect(chessboardScene, &ChessboardScene::didFinishRender, this, &ChessboardView::sceneDidFinishRender);
 
     setMinimumHeight(800);
-    setBackgroundBrush(Constant::backgroundColor);
     setResizeAnchor(ViewportAnchor::AnchorViewCenter);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
 }
 
 void ChessboardView::sceneDidFinishRender() {

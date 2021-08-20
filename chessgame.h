@@ -30,7 +30,6 @@ private:
 
 
     Graph railwayGraph(int startIndex, int endIndex) const;
-    int graphIndexToIndex() const;
 
 public:
     // TODO: Cache

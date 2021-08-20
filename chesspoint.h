@@ -11,10 +11,10 @@ public:
     ChessPoint(int x, int y): QPoint(x, y) {}
     ChessPoint() = default;
     ChessPoint(int i): QPoint(i / 5, i % 5) {}
+    operator int() const { return x() * 5 + y(); }
     bool isCamp() const;
     bool isOnRailway() const;
     bool isAround(const ChessPoint &another) const;
-    int index() const { return x() * 5 + y(); }
 };
 
 #endif // CHESSPOINT_H

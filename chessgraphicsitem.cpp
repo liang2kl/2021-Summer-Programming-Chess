@@ -5,9 +5,13 @@
 
 ChessGraphicsItem::ChessGraphicsItem(const Chess *chess, const QSizeF &size, bool isBack)
     : _chess(chess), isBack(isBack) {
+    auto font = QFont();
+    font.setPointSizeF(size.height() * FONT_SIZE_RATIO);
+
     auto *frontRectItem = new QGraphicsRectItem(QRectF(QPointF(), size));
     frontRectItem->setBrush(chess->side() == Chess::Side::Blue ? Constant::blue : Constant::red);
     auto *frontTextItem = new QGraphicsTextItem(chess->name());
+    frontTextItem->setFont(font);
 
     auto *frontItemGroup = new QGraphicsItemGroup();
     frontItemGroup->addToGroup(frontRectItem);
@@ -17,6 +21,8 @@ ChessGraphicsItem::ChessGraphicsItem(const Chess *chess, const QSizeF &size, boo
     auto *backRectItem = new QGraphicsRectItem(QRectF(QPointF(), size));
     backRectItem->setBrush(Qt::gray);
     auto *backTextItem = new QGraphicsTextItem("?");
+
+    backTextItem->setFont(font);
 
     auto *backItemGroup = new QGraphicsItemGroup();
     backItemGroup->addToGroup(backRectItem);
@@ -42,4 +48,14 @@ void ChessGraphicsItem::toggleSide() {
         backItem->setVisible(false);
         frontItem->setVisible(true);
     }
+}
+
+void ChessGraphicsItem::animatedSetPos(const QPointF &pos, int duration) {
+
+    QPropertyAnimation *animation = new QPropertyAnimation(this, "pos");
+    animation->setDuration(duration);
+    animation->setStartValue(this->pos());
+    animation->setEndValue(pos);
+
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }

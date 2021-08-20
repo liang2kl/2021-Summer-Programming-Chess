@@ -36,7 +36,7 @@ void ChessboardScene::drawChesses(const QVector<QPoint>& cellCenters) {
     for (const auto *chess : chesses) {
         if (chess) {
             auto *item = new ChessGraphicsItem(chess, QSizeF(cellWidth(), cellHeight()), !chess->isFlipped());
-            const int i = chess->position().index();
+            const int i = chess->position();
             item->setPos(cellCenters[i].x() - cellWidth() / 2,
                          cellCenters[i].y() - cellHeight() / 2);
 
@@ -219,15 +219,6 @@ void ChessboardScene::drawSelectionIndicator() {
 }
 // END DRAWING SECTION
 
-void ChessboardScene::animateMoving(ChessGraphicsItem *item, const QPointF &pos, int duration) {
-    QPropertyAnimation *animation = new QPropertyAnimation(item, "pos");
-    animation->setDuration(duration);
-    animation->setStartValue(item->pos());
-    animation->setEndValue(pos);
-
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
-}
-
 QVector<QPoint> ChessboardScene::generateCellData() {
     QVector<QPoint> points;
     for (int row = 0; row < 12; row++) {
@@ -258,10 +249,10 @@ void ChessboardScene::resizeEvent(QResizeEvent *event) {
 
 void ChessboardScene::setNewSize(const QSize &size) {
     float ratio = 12 + 12 * VERTICAL_SPACING_RATIO + CENTER_VERTICAL_SPACING_RATIO;
-    _cellHeight = size.height() / ratio * 0.97;
+    __cellHeight = size.height() / ratio * 0.97;
 }
 
-// No UI modification here!
+// No UI modification here! Just interacting with the model.
 void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
     for (int i = 0; i < containerItems.size(); i++) {
@@ -274,6 +265,8 @@ void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
                 if (!chessItem->chess()->isFlipped() && __selectedIndex == -1) {
                     ChessGame::shared->flipChess(i);
                     setSelectedIndex(-1);
+                } else if (!isMovable()) {
+                    break;
                 } else if (__selectedIndex == -1 &&
                            movingSide() == chessItem->chess()->side() &&
                            chessItem->chess()->isMovable()) {
@@ -297,6 +290,7 @@ void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
 }
 
+// UI updates whose states are owned by the view.
 void ChessboardScene::setSelectedIndex(int i) {
     qDebug() << "Selected Item:" << i << ChessPoint(i);
     __selectedIndex = i;
@@ -336,32 +330,32 @@ void ChessboardScene::setDestPoints(const QVector<int> points) {
 // UI could be modified.
 void ChessboardScene::chessGameDidFlipChess(const ChessPoint &pos) {
     qDebug() << "Flipped Chess" << pos;
-    chessItems[pos.index()]->toggleSide();
+    chessItems[pos]->toggleSide();
 }
 
 void ChessboardScene::chessGameDidMoveChess(const ChessPoint &source, const ChessPoint &dest) {
     qDebug() << "Move Chess from" << source << "to" << dest;
 
 
-    animateMoving(chessItems[source.index()],
-            QPointF(cellCenters[dest.index()].x() - cellWidth() / 2,
-            cellCenters[dest.index()].y() - cellHeight() / 2));
+    chessItems[source]->animatedSetPos(
+                QPointF(cellCenters[dest].x() - cellWidth() / 2,
+                cellCenters[dest].y() - cellHeight() / 2)
+                );
 
-    auto *item = chessItems[source.index()];
-    chessItems[source.index()] = chessItems[dest.index()];
-    chessItems[dest.index()] = item;
+    auto *item = chessItems[source];
+    chessItems[source] = chessItems[dest];
+    chessItems[dest] = item;
 }
 
 void ChessboardScene::chessGameDidRemoveChess(const ChessPoint &pos) {
-    removeItem(chessItems[pos.index()]);
-    delete chessItems[pos.index()];
-    chessItems[pos.index()] = nullptr;
+    removeItem(chessItems[pos]);
+    delete chessItems[pos];
+    chessItems[pos] = nullptr;
 }
 
 void ChessboardScene::chessGameDidChangeState(ChessGame::State state) {
     qDebug() << "Change state to" << state;
 }
-
 
 // State
 bool ChessboardScene::isMovable() {

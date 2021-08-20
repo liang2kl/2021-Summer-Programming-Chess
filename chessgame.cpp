@@ -96,9 +96,9 @@ QVector<int> ChessGame::availablePointsFor(const Chess * chess) const {
 }
 
 bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) const {
-    auto g = railwayGraph(source.index(), dest.index());
-    auto sourceChess = _chesses[source.index()];
-    auto destChess = _chesses[dest.index()];
+    auto g = railwayGraph(source, dest);
+    auto sourceChess = _chesses[source];
+    auto destChess = _chesses[dest];
 
     assert(sourceChess != nullptr);
 
@@ -120,6 +120,8 @@ bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) c
     }
 
     if (sourceChess->side() == destChess->side()) { return false; }
+
+    if (dest.isCamp()) { return false; }
 
     if (!sourceChess->allowingMoveTo(dest)) {
         return false;
@@ -278,8 +280,8 @@ void ChessGame::flipChess(const ChessPoint &pos) {
 
 void ChessGame::moveChess(const ChessPoint &source, const ChessPoint &dest) {
     assert(canMoveChess(source, dest));
-    assert((_state == BlueMove && _chesses[source.index()]->side() == Chess::Side::Blue) ||
-            (_state == RedMove && _chesses[source.index()]->side() == Chess::Side::Red));
+    assert((_state == BlueMove && _chesses[source]->side() == Chess::Side::Blue) ||
+            (_state == RedMove && _chesses[source]->side() == Chess::Side::Red));
 
     auto *srcChess = _chesses[indexOfPoint(source)];
     auto *desChess = _chesses[indexOfPoint(dest)];

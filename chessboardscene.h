@@ -34,9 +34,6 @@ private:
     void drawSelectionIndicator();
     void drawChesses(const QVector<QPoint>& cellCenters);
 
-    // Animation
-    void animateMoving(ChessGraphicsItem *item, const QPointF &pos, int duration = 250);
-
     // Geometry
     const float CELL_WIDTH_RATIO = 2;
     const float HORIZONTAL_SPACING_RATIO = 0.8;
@@ -45,26 +42,14 @@ private:
     const float CIRCLE_RADIUS_RATIO = 0.65;
 
     QVector<QPoint> cellCenters;
-    int _cellHeight;
+    int __cellHeight;
 
-    int cellHeight() {
-        return _cellHeight;
-    }
-    int cellWidth() {
-        return _cellHeight * CELL_WIDTH_RATIO;
-    }
-    int horizontalSpacing() {
-        return _cellHeight * HORIZONTAL_SPACING_RATIO;
-    }
-    int verticalSpacing() {
-        return _cellHeight * VERTICAL_SPACING_RATIO;
-    }
-    int centerVerticalSpacing() {
-        return _cellHeight * CENTER_VERTICAL_SPACING_RATIO;
-    }
-    int circleRadius() {
-        return _cellHeight * CIRCLE_RADIUS_RATIO;
-    }
+    int cellHeight() { return __cellHeight; }
+    int cellWidth() { return __cellHeight * CELL_WIDTH_RATIO; }
+    int horizontalSpacing() { return __cellHeight * HORIZONTAL_SPACING_RATIO; }
+    int verticalSpacing() { return __cellHeight * VERTICAL_SPACING_RATIO; }
+    int centerVerticalSpacing() { return __cellHeight * CENTER_VERTICAL_SPACING_RATIO; }
+    int circleRadius() { return __cellHeight * CIRCLE_RADIUS_RATIO; }
 
     QVector<QPoint> generateCellData();
     void setNewSize(const QSize &size);

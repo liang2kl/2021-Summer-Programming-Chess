@@ -22,7 +22,7 @@ signals:
     void didResize(QResizeEvent *);
 
 public:
-    ChessboardView();
+    ChessboardView(QWidget *parent = nullptr);
 };
 
 #endif // CHESSBOARDVIEW_H

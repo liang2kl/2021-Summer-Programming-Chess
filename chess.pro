@@ -13,22 +13,24 @@ SOURCES += \
     chessboardscene.cpp \
     chessboardview.cpp \
     chessgame.cpp \
+    chessgamepanelview.cpp \
+    chessgameview.cpp \
     chessgraphicsitem.cpp \
     chesspoint.cpp \
-    main.cpp \
-    mainwindow.cpp
+    main.cpp
 
 HEADERS += \
     chess.h \
     chessboardscene.h \
     chessboardview.h \
     chessgame.h \
+    chessgamepanelview.h \
+    chessgameview.h \
     chessgraphicsitem.h \
     chesspoint.h \
     constants.h \
     dropshadoweffect.h \
-    graph.h \
-    mainwindow.h
+    graph.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

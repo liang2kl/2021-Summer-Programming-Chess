@@ -22,6 +22,7 @@ bool Chess::isMovable() const {
 }
 
 Chess::EncounterResult Chess::encounter(Chess anotherChess) const {
+    // FIXME: Flag
     assert(_side != anotherChess._side);
 
     Type another = anotherChess.type();

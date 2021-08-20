@@ -2,8 +2,9 @@
 #include "chessboardscene.h"
 #include "constants.h"
 
-ChessboardView::ChessboardView(QWidget *parent) : QGraphicsView(parent) {
-    chessboardScene = new ChessboardScene(800);
+ChessboardView::ChessboardView(ChessGameManager *manager, QWidget *parent)
+    : QGraphicsView(parent), manager(manager) {
+    chessboardScene = new ChessboardScene(manager, 800);
     setScene(chessboardScene);
     connect(this, &ChessboardView::didResize, chessboardScene, &ChessboardScene::resizeEvent);
     connect(chessboardScene, &ChessboardScene::didFinishRender, this, &ChessboardView::sceneDidFinishRender);

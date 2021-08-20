@@ -6,6 +6,7 @@
 #include <QTimer>
 
 #include "chessboardscene.h"
+#include "chessgamemanager.h"
 
 class ChessboardView : public QGraphicsView
 {
@@ -13,6 +14,7 @@ class ChessboardView : public QGraphicsView
 
 private:
     ChessboardScene * chessboardScene;
+    ChessGameManager *manager;
 
 private slots:
     void sceneDidFinishRender();
@@ -22,7 +24,7 @@ signals:
     void didResize(QResizeEvent *);
 
 public:
-    ChessboardView(QWidget *parent = nullptr);
+    ChessboardView(ChessGameManager *manager, QWidget *parent = nullptr);
 };
 
 #endif // CHESSBOARDVIEW_H

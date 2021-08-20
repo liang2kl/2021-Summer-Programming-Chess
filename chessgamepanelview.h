@@ -3,18 +3,19 @@
 
 #include <QWidget>
 #include <QLabel>
-#include "chessgame.h"
+#include "chessgamemanager.h"
 
 class ChessGamePanelView : public QWidget {
     Q_OBJECT
 
 private:
+    ChessGameManager *manager;
     QLabel *stateLabel;
 
     void updateWithState(ChessGame::State state);
 
 public:
-    explicit ChessGamePanelView(QWidget *parent = nullptr);
+    ChessGamePanelView(ChessGameManager *manager, QWidget *parent = nullptr);
 
 private slots:
     void chessGameDidChangeState(ChessGame::State state);

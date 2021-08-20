@@ -3,10 +3,9 @@
 #include <QFont>
 #include <QHBoxLayout>
 
-ChessGamePanelView::ChessGamePanelView(QWidget *parent) : QWidget(parent) {
-    auto *game = ChessGame::shared;
-
-    connect(game, &ChessGame::stateDidChange, this, &ChessGamePanelView::chessGameDidChangeState);
+ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *parent) :
+    QWidget(parent), manager(manager) {
+    connect(manager->game(), &ChessGame::stateDidChange, this, &ChessGamePanelView::chessGameDidChangeState);
 
     auto *layout = new QHBoxLayout(this);
 
@@ -18,7 +17,7 @@ ChessGamePanelView::ChessGamePanelView(QWidget *parent) : QWidget(parent) {
     font.setPointSize(19);
     stateLabel->setFont(font);
 
-    updateWithState(game->state());
+    updateWithState(manager->game()->state());
 }
 
 void ChessGamePanelView::chessGameDidChangeState(ChessGame::State state) {

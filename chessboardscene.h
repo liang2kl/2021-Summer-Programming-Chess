@@ -7,13 +7,14 @@
 #include <QResizeEvent>
 #include <QGraphicsSceneMouseEvent>
 
-#include "chessgame.h"
+#include "chessgamemanager.h"
 #include "chessgraphicsitem.h"
 
 class ChessboardScene : public QGraphicsScene {
     Q_OBJECT
 
 private:
+    ChessGameManager *manager;
     QVector<QGraphicsItem *> containerItems = QVector<QGraphicsItem *>(60);
     QVector<ChessGraphicsItem *> chessItems = QVector<ChessGraphicsItem *>(60);
     QVector<QGraphicsItem *> highlightItems;
@@ -80,7 +81,7 @@ private:
     Chess::Side movingSide();
 
 public:
-    ChessboardScene(int initialHeight = 600);
+    ChessboardScene(ChessGameManager *manager, int initialHeight = 600);
 };
 
 #endif // CHESSBOARDSCENE_H

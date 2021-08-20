@@ -14,7 +14,6 @@ class ChessGame: public QObject {
     Q_OBJECT
 
 private:
-    ChessGame();
     QVector<Chess *> _chesses = QVector<Chess *>(60);
     QVector<int> railwayIndices;
     QMap<int, int> railwayIndexMap;
@@ -35,13 +34,11 @@ private:
     Graph railwayGraph(int startIndex, int endIndex) const;
 
 public:
-    // TODO: Cache
+    ChessGame();
     QVector<int> availablePointsFor(const Chess *) const;
     bool canMoveChess(const ChessPoint &source, const ChessPoint &dest) const;
     QVector<const Chess *> chesses() const;
     void randomize();
-    // Game singleton
-    static ChessGame * const shared;
 
 // Playing
 public:
@@ -52,7 +49,7 @@ public:
 public:
     enum State { Flip, BlueMove, RedMove, BlueWin, RedWin };
 
-    State state() { return _state; }
+    State state() const { return _state; }
 
 private:
     State _state = Flip;

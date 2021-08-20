@@ -29,8 +29,6 @@ ChessGame::ChessGame() {
     railwayIndexMap = map;
 }
 
-ChessGame * const ChessGame::shared = new ChessGame();
-
 void ChessGame::randomize() {
     QVector<Chess *> chesses;
 

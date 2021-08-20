@@ -14,6 +14,7 @@ SOURCES += \
     chessboardscene.cpp \
     chessboardview.cpp \
     chessgame.cpp \
+    chessgamemanager.cpp \
     chessgamenetworkbase.cpp \
     chessgamenetworkclient.cpp \
     chessgamenetworkserver.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     chessboardscene.h \
     chessboardview.h \
     chessgame.h \
+    chessgamemanager.h \
     chessgamenetworkbase.h \
     chessgamenetworkclient.h \
     chessgamenetworkserver.h \

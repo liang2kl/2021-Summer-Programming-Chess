@@ -2,10 +2,11 @@
 #include "constants.h"
 #include <QVBoxLayout>
 
-ChessGameView::ChessGameView(QWidget *parent) : QWidget(parent) {
+ChessGameView::ChessGameView(ChessGameManager *manager, QWidget *parent)
+    : QWidget(parent), manager(manager) {
     auto *layout = new QVBoxLayout(this);
-    chessboardView = new ChessboardView();
-    panelView = new ChessGamePanelView();
+    chessboardView = new ChessboardView(manager);
+    panelView = new ChessGamePanelView(manager);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
 

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "chessboardview.h"
 #include "chessgamepanelview.h"
+#include "chessgamemanager.h"
 
 class ChessGameView : public QWidget {
     Q_OBJECT
@@ -11,10 +12,11 @@ class ChessGameView : public QWidget {
 private:
     ChessboardView *chessboardView;
     ChessGamePanelView *panelView;
+    ChessGameManager *manager;
 
     void resizeEvent(QResizeEvent *);
 public:
-    explicit ChessGameView(QWidget *parent = nullptr);
+    ChessGameView(ChessGameManager *manager, QWidget *parent = nullptr);
 
 signals:
 

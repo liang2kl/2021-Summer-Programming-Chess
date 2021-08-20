@@ -5,8 +5,9 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPropertyAnimation>
 
-ChessboardScene::ChessboardScene(int initialHeight) {
-    auto *game = ChessGame::shared;
+ChessboardScene::ChessboardScene(ChessGameManager *manager, int initialHeight)
+    : manager(manager) {
+    auto *game = manager->game();
     connect(game, &ChessGame::chessDidFlip, this, &ChessboardScene::chessGameDidFlipChess);
     connect(game, &ChessGame::chessDidMove, this, &ChessboardScene::chessGameDidMoveChess);
     connect(game, &ChessGame::chessDidRemoved, this, &ChessboardScene::chessGameDidRemoveChess);
@@ -31,7 +32,7 @@ void ChessboardScene::drawScene() {
 }
 
 void ChessboardScene::drawChesses(const QVector<QPoint>& cellCenters) {
-    const QVector<const Chess*> chesses = ChessGame::shared->chesses();
+    const QVector<const Chess*> chesses = manager->game()->chesses();
 
     for (const auto *chess : chesses) {
         if (chess) {
@@ -263,7 +264,7 @@ void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
             if (chessItem) {
                 if (!chessItem->chess()->isFlipped() && __selectedIndex == -1) {
-                    ChessGame::shared->flipChess(i);
+                    manager->flipChess(i);
                     setSelectedIndex(-1);
                 } else if (!isMovable()) {
                     break;
@@ -274,12 +275,12 @@ void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
                 } else if (__selectedIndex == i) {
                     setSelectedIndex(-1);
                 } else if (__destPoints.contains(i)) {
-                    ChessGame::shared->moveChess(__selectedIndex, i);
+                    manager->moveChess(__selectedIndex, i);
                     setSelectedIndex(-1);
                 } // Else, do nothing.
             } else {
                 if (__destPoints.contains(i)) {
-                    ChessGame::shared->moveChess(__selectedIndex, i);
+                    manager->moveChess(__selectedIndex, i);
                     setSelectedIndex(-1);
                 } // Else, do nothing.
             }
@@ -308,8 +309,8 @@ void ChessboardScene::setSelectedIndex(int i) {
 
     drawSelectionIndicator();
 
-    auto chesses = ChessGame::shared->chesses();
-    auto points = ChessGame::shared->availablePointsFor(chesses[i]);
+    auto chesses = manager->game()->chesses();
+    auto points = manager->game()->availablePointsFor(chesses[i]);
     setDestPoints(points);
 }
 
@@ -359,7 +360,7 @@ void ChessboardScene::chessGameDidChangeState(ChessGame::State state) {
 
 // State
 bool ChessboardScene::isMovable() {
-    auto state = ChessGame::shared->state();
+    auto state = manager->game()->state();
     return state == ChessGame::State::RedMove ||
                state == ChessGame::State::BlueMove;
 }
@@ -367,6 +368,6 @@ bool ChessboardScene::isMovable() {
 Chess::Side ChessboardScene::movingSide() {
     assert(isMovable());
 
-    return ChessGame::shared->state() == ChessGame::State::RedMove ?
+    return manager->game()->state() == ChessGame::State::RedMove ?
                 Chess::Side::Red : Chess::Side::Blue;
 }

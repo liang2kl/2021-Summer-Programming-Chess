@@ -17,6 +17,7 @@ private:
     QVector<QGraphicsItem *> containerItems = QVector<QGraphicsItem *>(60);
     QVector<ChessGraphicsItem *> chessItems = QVector<ChessGraphicsItem *>(60);
     QVector<QGraphicsItem *> highlightItems;
+    QGraphicsItem *selectedItem = nullptr;
 private:
     // Initial drawing
     void drawScene();
@@ -33,6 +34,8 @@ private:
     void drawSelectionIndicator();
     void drawChesses(const QVector<QPoint>& cellCenters);
 
+    // Animation
+    void animateMoving(ChessGraphicsItem *item, const QPointF &pos, int duration = 250);
 
     // Geometry
     const float CELL_WIDTH_RATIO = 2;
@@ -66,6 +69,7 @@ private:
     QVector<QPoint> generateCellData();
     void setNewSize(const QSize &size);
 
+    // Touch event
     void mousePressEvent(QGraphicsSceneMouseEvent *);
 
 public slots:

@@ -3,6 +3,7 @@
 #include "constants.h"
 #include <QImage>
 #include <QGraphicsDropShadowEffect>
+#include <QPropertyAnimation>
 
 ChessboardScene::ChessboardScene(int initialHeight) {
     auto *game = ChessGame::shared;
@@ -14,6 +15,7 @@ ChessboardScene::ChessboardScene(int initialHeight) {
     drawScene();
 }
 
+// Drawing. Do not initiate drawings outside this section.
 void ChessboardScene::drawScene() {
     cellCenters = generateCellData();
 
@@ -22,13 +24,14 @@ void ChessboardScene::drawScene() {
     drawRects(cellCenters);
     drawCircles(cellCenters);
     drawChesses(cellCenters);
+    drawHighlightItems();
+    drawSelectionIndicator();
 
     emit didFinishRender();
 }
 
 void ChessboardScene::drawChesses(const QVector<QPoint>& cellCenters) {
     const QVector<const Chess*> chesses = ChessGame::shared->chesses();
-
 
     for (const auto *chess : chesses) {
         if (chess) {
@@ -167,7 +170,63 @@ void ChessboardScene::_drawRailway(const QLine &line) {
     item2->setGraphicsEffect(new DropShadowEffect());
 }
 
+void ChessboardScene::drawHighlightItems() {
+    for (auto point : __destPoints) {
+        QPoint center = cellCenters[point];
 
+        QGraphicsItem *newItem;
+        if (ChessPoint(point).isCamp()) {
+            const float radius = circleRadius();
+
+            newItem = addEllipse(
+                        center.x() - radius,
+                        center.y() - radius,
+                        radius * 2,
+                        radius * 2,
+                        QPen(Constant::yellow, cellHeight() / 10),
+                        Qt::NoBrush);
+        } else {
+            newItem = addRect(
+                        center.x() - cellWidth() / 2,
+                        center.y() - cellHeight() / 2,
+                        cellWidth(),
+                        cellHeight(),
+                        QPen(Constant::yellow, cellHeight() / 10),
+                        Qt::NoBrush);
+        }
+
+        highlightItems.append(newItem);
+    }
+}
+
+void ChessboardScene::drawSelectionIndicator() {
+    if (__selectedIndex != -1) {
+        QPoint center = cellCenters[__selectedIndex];
+
+        auto color = Constant::yellow;
+        color.setAlphaF(0.7);
+
+        auto *item = addRect(
+                    center.x() - cellWidth() / 2,
+                    center.y() - cellHeight() / 2,
+                    cellWidth(),
+                    cellHeight(),
+                    Qt::NoPen,
+                    color);
+
+        selectedItem = item;
+    }
+}
+// END DRAWING SECTION
+
+void ChessboardScene::animateMoving(ChessGraphicsItem *item, const QPointF &pos, int duration) {
+    QPropertyAnimation *animation = new QPropertyAnimation(item, "pos");
+    animation->setDuration(duration);
+    animation->setStartValue(item->pos());
+    animation->setEndValue(pos);
+
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
 
 QVector<QPoint> ChessboardScene::generateCellData() {
     QVector<QPoint> points;
@@ -215,7 +274,9 @@ void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
                 if (!chessItem->chess()->isFlipped() && __selectedIndex == -1) {
                     ChessGame::shared->flipChess(i);
                     setSelectedIndex(-1);
-                } else if (__selectedIndex == -1 && movingSide() == chessItem->chess()->side()) {
+                } else if (__selectedIndex == -1 &&
+                           movingSide() == chessItem->chess()->side() &&
+                           chessItem->chess()->isMovable()) {
                     setSelectedIndex(i);
                 } else if (__selectedIndex == i) {
                     setSelectedIndex(-1);
@@ -240,10 +301,18 @@ void ChessboardScene::setSelectedIndex(int i) {
     qDebug() << "Selected Item:" << i << ChessPoint(i);
     __selectedIndex = i;
 
+    if (selectedItem) {
+        if (selectedItem->scene() == this) {
+            removeItem(selectedItem);
+        }
+    }
+
     if (i == -1) {
         setDestPoints({});
         return;
     }
+
+    drawSelectionIndicator();
 
     auto chesses = ChessGame::shared->chesses();
     auto points = ChessGame::shared->availablePointsFor(chesses[i]);
@@ -251,39 +320,16 @@ void ChessboardScene::setSelectedIndex(int i) {
 }
 
 void ChessboardScene::setDestPoints(const QVector<int> points) {
+    // Clear previous items.
     for (auto *item : highlightItems) {
         removeItem(item);
         delete item;
     }
     highlightItems = {};
 
-    for (auto point : points) {
-        QPoint center = cellCenters[point];
-
-        QGraphicsItem *newItem;
-        if (ChessPoint(point).isCamp()) {
-            const float radius = circleRadius();
-
-            newItem = addEllipse(
-                        center.x() - radius,
-                        center.y() - radius,
-                        radius * 2,
-                        radius * 2,
-                        QPen(Constant::yellow, cellHeight() / 10),
-                        Qt::NoBrush);
-        } else {
-            newItem = addRect(
-                        center.x() - cellWidth() / 2,
-                        center.y() - cellHeight() / 2,
-                        cellWidth(),
-                        cellHeight(),
-                        QPen(Constant::yellow, cellHeight() / 10),
-                        Qt::NoBrush);
-        }
-
-        highlightItems.append(newItem);
-    }
     __destPoints = points;
+
+    drawHighlightItems();
 }
 
 // Respond to signals from the game model. The only place where
@@ -296,8 +342,10 @@ void ChessboardScene::chessGameDidFlipChess(const ChessPoint &pos) {
 void ChessboardScene::chessGameDidMoveChess(const ChessPoint &source, const ChessPoint &dest) {
     qDebug() << "Move Chess from" << source << "to" << dest;
 
-    chessItems[source.index()]->setPos(cellCenters[dest.index()].x() - cellWidth() / 2,
-                       cellCenters[dest.index()].y() - cellHeight() / 2);
+
+    animateMoving(chessItems[source.index()],
+            QPointF(cellCenters[dest.index()].x() - cellWidth() / 2,
+            cellCenters[dest.index()].y() - cellHeight() / 2));
 
     auto *item = chessItems[source.index()];
     chessItems[source.index()] = chessItems[dest.index()];

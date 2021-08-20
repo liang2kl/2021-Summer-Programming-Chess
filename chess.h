@@ -48,10 +48,10 @@ public:
     void flip() { _isFlipped = true; }
 
     QString name() const;
-    bool isMovable();
+    bool isMovable() const;
 
 
-    EncounterResult encounter(Chess anotherChess);
+    EncounterResult encounter(Chess anotherChess) const;
 
     // Having no assertion about whether the points are valid.
     bool allowingMoveTo(const ChessPoint &dest);

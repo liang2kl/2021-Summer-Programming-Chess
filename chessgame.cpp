@@ -110,6 +110,7 @@ bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) c
         if (source.isOnRailway() && dest.isOnRailway()) {
             return allowingPointOnRailwayMoveTo(source, dest, sourceChess->type() == Chess::Type::Engineer, g);
         } else {
+            // Only allowed when they are around. if one chess is not on railway
             return sourceChess->allowingMoveTo(dest);
         }
     }
@@ -170,6 +171,13 @@ bool ChessGame::allowingPointOnRailwayMoveTo(const ChessPoint &source, const Che
 bool ChessGame::allowingVerticallyMoveTo(const ChessPoint &source, const ChessPoint &dest) const {
     assert(source.y() == dest.y());
 
+    const int column = source.y();
+    if (column != 0 && column != 4 &&
+            !(source == ChessPoint(5, 2) && dest == ChessPoint(6, 2)) &&
+            !(source == ChessPoint(6, 2) && dest == ChessPoint(5, 2))
+            ) {
+        return false;
+    }
     auto minX = std::min(source.x(), dest.x());
     auto maxX = std::max(source.x(), dest.x());
 
@@ -183,6 +191,9 @@ bool ChessGame::allowingVerticallyMoveTo(const ChessPoint &source, const ChessPo
 
 bool ChessGame::allowingHorizontallyMoveTo(const ChessPoint &source, const ChessPoint &dest) const {
     assert(source.x() == dest.x());
+
+    const int row = source.x();
+    if (row != 1 && row != 5 && row != 6 && row != 10) { return false; }
 
     auto minY = std::min(source.y(), dest.y());
     auto maxY = std::max(source.y(), dest.y());
@@ -342,6 +353,7 @@ void ChessGame::updateResultState() {
         return;
     }
 
+    // TODO: Other Logic
     // TODO: Not movable
 
     // Toggle movable side

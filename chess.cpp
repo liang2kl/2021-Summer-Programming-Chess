@@ -17,11 +17,11 @@ QString Chess::name() const {
     }
 }
 
-bool Chess::isMovable() {
+bool Chess::isMovable() const {
     return _type != Landmine && _type != Flag;
 }
 
-Chess::EncounterResult Chess::encounter(Chess anotherChess) {
+Chess::EncounterResult Chess::encounter(Chess anotherChess) const {
     assert(_side != anotherChess._side);
 
     Type another = anotherChess.type();
@@ -56,7 +56,8 @@ bool Chess::allowingMoveTo(const ChessPoint &dest) {
 
     if ((_position.y() == 0 && dest.y() == 0) ||
             (_position.y() == 4 && dest.y() == 4)) {
-        return true;
+        // Exclude (0, 0) and (11, 0)
+        return dest.x() != 0 && dest.x() != 11;
     }
 
     if ((_position.x() == 5 && _position.y() == 2 &&

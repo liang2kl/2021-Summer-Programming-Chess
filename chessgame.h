@@ -33,6 +33,7 @@ private:
     int graphIndexToIndex() const;
 
 public:
+    // TODO: Cache
     QVector<int> availablePointsFor(const Chess *) const;
     bool canMoveChess(const ChessPoint &source, const ChessPoint &dest) const;
     QVector<const Chess *> chesses() const;

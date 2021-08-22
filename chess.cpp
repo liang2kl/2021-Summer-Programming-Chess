@@ -79,6 +79,10 @@ QDataStream &operator<<(QDataStream &stream, const Chess &chess) {
 }
 
 QDataStream &operator>>(QDataStream &stream, Chess &chess) {
-    stream >> chess._type >> chess._side >> chess._position;
+    qint32 type, side;
+    stream >> type >> side;
+    chess._type = Chess::Type(type);
+    chess._side = Chess::Side(side);
+    stream >> chess._position;
     return stream;
 }

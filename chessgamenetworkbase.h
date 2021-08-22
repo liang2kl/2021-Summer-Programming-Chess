@@ -14,7 +14,7 @@ protected slots:
     void socketDidReceivedData();
 
 protected:
-    enum DataType { Flip, Move, Chessboard };
+    enum DataType { Flip = 200, Move, Chessboard };
 
     virtual void handleReceivedData(QByteArray buffer);
     void connectToSocket(QTcpSocket *socket);

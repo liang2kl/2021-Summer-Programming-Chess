@@ -8,7 +8,6 @@ ChessGameNetworkClient::ChessGameNetworkClient() {
 
 void ChessGameNetworkClient::connectToHost(const QString &hostName) {
     socket->connectToHost(hostName, Constant::portNumber);
-    qDebug() << "Connecting to" << hostName;
 }
 
 void ChessGameNetworkClient::disconnectFromHost() {
@@ -18,7 +17,7 @@ void ChessGameNetworkClient::disconnectFromHost() {
 void ChessGameNetworkClient::handleReceivedData(QByteArray buffer) {
     QByteArray copy = buffer;
     qint32 size;
-    ChessGameNetworkClient::DataType type;
+    qint32 type;
 
     QDataStream stream(&buffer, QIODevice::ReadOnly);
 
@@ -35,6 +34,7 @@ void ChessGameNetworkClient::handleReceivedData(QByteArray buffer) {
         Chess chess;
         stream >> chess;
         data.append(chess);
+        qDebug() << chess.position();
     }
 
     emit didReceiveChessboardData(data);

@@ -1,8 +1,10 @@
 #include "chessgamemanager.h"
 
 ChessGameManager::ChessGameManager(bool isServer) : isServer(isServer) {
+    _game = new ChessGame();
     if (isServer) {
         server = new ChessGameNetworkServer();
+        server->startListening();
         _game->randomize();
     } else {
         client = new ChessGameNetworkClient();

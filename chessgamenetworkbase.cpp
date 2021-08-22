@@ -1,7 +1,7 @@
 #include "chessgamenetworkbase.h"
 
 void ChessGameNetworkBase::connectToSocket(QTcpSocket *socket) {
-    assert(socket && !this->socket);
+    assert(socket);
     this->socket = socket;
 
     QObject::connect(socket, &QTcpSocket::readyRead, this, &ChessGameNetworkBase::socketDidReceivedData);

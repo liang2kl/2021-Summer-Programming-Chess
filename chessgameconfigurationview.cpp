@@ -58,10 +58,12 @@ ChessGameConfigurationView::ChessGameConfigurationView(QWidget *parent) : QWidge
 
 void ChessGameConfigurationView::didSetClient() {
     addressTextField->setEnabled(true);
+    __isServer = false;
 }
 
 void ChessGameConfigurationView::didSetServer() {
     addressTextField->setEnabled(false);
+    __isServer = true;
 }
 
 void ChessGameConfigurationView::confirm() {
@@ -69,6 +71,7 @@ void ChessGameConfigurationView::confirm() {
     manager = new ChessGameManager(__isServer);
 
     if (!__isServer) {
+        manager->connectToServer(addressTextField->text());
         auto *view = new ChessGameView(manager);
         view->show();
         close();

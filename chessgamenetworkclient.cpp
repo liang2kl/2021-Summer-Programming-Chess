@@ -8,6 +8,7 @@ ChessGameNetworkClient::ChessGameNetworkClient() {
 
 void ChessGameNetworkClient::connectToHost(const QString &hostName) {
     socket->connectToHost(hostName, Constant::portNumber);
+    qDebug() << "Connecting to" << hostName;
 }
 
 void ChessGameNetworkClient::disconnectFromHost() {

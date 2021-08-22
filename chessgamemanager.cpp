@@ -10,7 +10,6 @@ ChessGameManager::ChessGameManager(bool isServer) : isServer(isServer) {
         connect(server, &ChessGameNetworkServer::didConnectToHost,
                 this, &ChessGameManager::networkDidConnectToHost);
         base = server;
-
     } else {
         client = new ChessGameNetworkClient();
         base = client;

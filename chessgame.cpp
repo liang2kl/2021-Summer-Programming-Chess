@@ -28,7 +28,7 @@ ChessGame::ChessGame() {
 
 void ChessGame::setChesses(QVector<Chess> chesses) {
     for (auto chess : chesses) {
-        _chesses.append(new Chess(chess));
+        _chesses[chess.position()] = new Chess(chess);
     }
     emit didUpdateChesses();
 }

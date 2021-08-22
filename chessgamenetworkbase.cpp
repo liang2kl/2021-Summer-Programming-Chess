@@ -1,7 +1,6 @@
 #include "chessgamenetworkbase.h"
 
 void ChessGameNetworkBase::connectToSocket(QTcpSocket *socket) {
-    assert(socket);
     this->socket = socket;
 
     QObject::connect(socket, &QTcpSocket::readyRead, this, &ChessGameNetworkBase::socketDidReceivedData);
@@ -39,6 +38,7 @@ void ChessGameNetworkBase::sendFlipChessData(const ChessPoint &pos, qint32 opera
     QDataStream stream(&bytes, QIODevice::ReadWrite);
 
     stream << qint32(Flip) << operationIndex << pos;
+
     sendBytes(bytes);
 }
 

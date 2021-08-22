@@ -17,7 +17,7 @@ void ChessGameNetworkBase::socketDidReceivedData() {
 
 void ChessGameNetworkBase::handleReceivedData(QByteArray buffer) {
     qint32 size, index;
-    DataType type;
+    qint32 type;
 
     QDataStream stream(&buffer, QIODevice::ReadOnly);
 
@@ -52,11 +52,5 @@ void ChessGameNetworkBase::sendMoveChessData(const ChessPoint &src, const ChessP
 
 void ChessGameNetworkBase::sendBytes(QByteArray bytes) {
     assert(socket->state() == QAbstractSocket::ConnectedState);
-
-    QByteArray finalData;
-    QDataStream stream(&finalData, QIODevice::ReadWrite);
-    stream << bytes.size();
-    stream << bytes;
-
-    socket->write(finalData);
+    socket->write(bytes);
 }

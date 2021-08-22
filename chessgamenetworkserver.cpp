@@ -7,13 +7,11 @@ ChessGameNetworkServer::ChessGameNetworkServer() {
 
 void ChessGameNetworkServer::startListening() {
     server->listen(QHostAddress::Any, Constant::portNumber);
-    qDebug() << "Listening";
     connect(server, &QTcpServer::newConnection, this, &ChessGameNetworkServer::serverDidInitiateNewConnection);
 }
 
 void ChessGameNetworkServer::serverDidInitiateNewConnection() {
     auto *socket = server->nextPendingConnection();
-    qDebug() << "Initiated";
     connectToSocket(socket);
     emit didConnectToHost();
 }
@@ -26,6 +24,7 @@ void ChessGameNetworkServer::sendChessboardData(QVector<Chess> data) {
 
     for (auto chess : data) {
         stream << chess;
+        qDebug() << chess.position();
     }
 
     sendBytes(bytes);

@@ -18,7 +18,7 @@ void ChessGameNetworkClient::disconnectFromHost() {
 void ChessGameNetworkClient::handleReceivedData(QByteArray buffer) {
     QByteArray copy = buffer;
     qint32 size;
-    ChessGameNetworkClient::DataType type;
+    qint32 type;
 
     QDataStream stream(&buffer, QIODevice::ReadOnly);
 

@@ -1,4 +1,4 @@
-#include "chessgameview.h"
+#include "chessgameconfigurationview.h"
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -7,8 +7,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-//    auto *view = new ChessGameView();
+    auto *view = new ChessGameConfigurationView();
 
-//    view->show();
+    view->show();
     return a.exec();
 }

@@ -6,9 +6,6 @@
 #include "constants.h"
 
 ChessGame::ChessGame() {
-    randomize();
-//    _chesses[5] = new Chess(Chess::Type::Bomb, Chess::Side::Red, ChessPoint(1, 0));
-
     QVector<int> indices;
     QMap<int, int> map;
     int index = 0;
@@ -27,6 +24,13 @@ ChessGame::ChessGame() {
 
     railwayIndices = indices;
     railwayIndexMap = map;
+}
+
+void ChessGame::setChesses(QVector<Chess> chesses) {
+    for (auto chess : chesses) {
+        _chesses.append(new Chess(chess));
+    }
+    emit didUpdateChesses();
 }
 
 void ChessGame::randomize() {

@@ -12,6 +12,7 @@ ChessboardScene::ChessboardScene(ChessGameManager *manager, int initialHeight)
     connect(game, &ChessGame::chessDidMove, this, &ChessboardScene::chessGameDidMoveChess);
     connect(game, &ChessGame::chessDidRemoved, this, &ChessboardScene::chessGameDidRemoveChess);
     connect(game, &ChessGame::stateDidChange, this, &ChessboardScene::chessGameDidChangeState);
+    connect(game, &ChessGame::didUpdateChesses, this, &ChessboardScene::chessGameDidUpdateChesses);
     setNewSize(QSize(0, initialHeight));
     drawScene();
 }
@@ -356,6 +357,10 @@ void ChessboardScene::chessGameDidRemoveChess(const ChessPoint &pos) {
 
 void ChessboardScene::chessGameDidChangeState(ChessGame::State state) {
     qDebug() << "Change state to" << state;
+}
+
+void ChessboardScene::chessGameDidUpdateChesses() {
+    drawScene();
 }
 
 // State

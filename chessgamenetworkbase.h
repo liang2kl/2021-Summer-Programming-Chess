@@ -18,14 +18,16 @@ protected:
 
     virtual void handleReceivedData(QByteArray buffer);
     void connectToSocket(QTcpSocket *socket);
-    void sendFlipChessData(const ChessPoint &pos, qint32 operationIndex);
-    void sendMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
     void sendBytes(QByteArray bytes);
 
 signals:
     void didReceiveFlipChessData(const ChessPoint &pos, qint32 operationIndex);
     void didReceiveMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
-    void diFailToSendData(int index);
+//    void diFailToSendData(int index);
+public:
+    void sendFlipChessData(const ChessPoint &pos, qint32 operationIndex);
+    void sendMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
+
 };
 
 #endif // CHESSGAMENETWORKBASE_H

@@ -17,12 +17,25 @@ private:
 
 public:
     ChessGameManager(bool isServer);
-    void flipChess(const ChessPoint &pos);
-    void moveChess(const ChessPoint &src, const ChessPoint &des);
     ChessGame const * game() { return _game; }
 
-signals:
+    void connectToServer(const QString &hostName);
+    void startListening();
 
+    void flipChess(const ChessPoint &pos);
+    void moveChess(const ChessPoint &src, const ChessPoint &des);
+
+private slots:
+    // General
+    void networkDidConnectToHost();
+    void networkDidReceiveFlipChessData(const ChessPoint &pos, qint32 operationIndex);
+    void networkDidReceiveMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
+
+    // Client
+    void clientDidReceiveChessboardData(QVector<Chess> data);
+
+signals:
+    void didConnectToHost();
 };
 
 #endif // CHESSGAMEMANAGER_H

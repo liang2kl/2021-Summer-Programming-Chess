@@ -39,6 +39,7 @@ public:
     bool canMoveChess(const ChessPoint &source, const ChessPoint &dest) const;
     QVector<const Chess *> chesses() const;
     void randomize();
+    void setChesses(QVector<Chess> chesses);
 
 // Playing
 public:
@@ -59,6 +60,7 @@ private:
     void setState(State state);
 
 signals:
+    void didUpdateChesses();
     void chessDidFlip(const ChessPoint &pos);
     void chessDidMove(const ChessPoint &source, const ChessPoint &dest);
     void chessDidRemoved(const ChessPoint &point);

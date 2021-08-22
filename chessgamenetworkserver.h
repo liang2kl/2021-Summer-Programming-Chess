@@ -17,6 +17,10 @@ public:
 
 private slots:
     void serverDidInitiateNewConnection();
+
+signals:
+    void didConnectToHost();
+
 };
 
 #endif // CHESSGAMENETWORKSERVER_H

@@ -66,6 +66,7 @@ public slots:
     void chessGameDidFlipChess(const ChessPoint &pos);
     void chessGameDidMoveChess(const ChessPoint &source, const ChessPoint &dest);
     void chessGameDidRemoveChess(const ChessPoint &pos);
+    void chessGameDidUpdateChesses();
 
 signals:
     void didFinishRender();

@@ -36,6 +36,14 @@ ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *paren
 
     timeoutVLayout->setSpacing(0);
 
+    thatTimeoutLabel = new QLabel();
+    auto timeoutFont = QFont();
+    timeoutFont.setPointSize(11);
+    thatTimeoutLabel->setFont(timeoutFont);
+
+    thisTimeoutLabel = new QLabel();
+    thisTimeoutLabel->setFont(timeoutFont);
+
     auto font = QFont();
     font.setPointSize(19);
     stateLabel->setFont(font);
@@ -112,24 +120,17 @@ void ChessGamePanelView::chessGameDidChangeIndex() {
 
 void ChessGamePanelView::chessGameDidChangeThisPlayerTimeoutCount(int count) {
     qDebug() << "This player, timeout" << count;
-    if (!thisTimeoutLabel) {
-        thisTimeoutLabel = new QLabel();
+    if (count == 1) {
         timeoutVLayout->addWidget(thisTimeoutLabel);
-        auto font = QFont();
-        font.setPointSize(11);
-        thisTimeoutLabel->setFont(font);
     }
+
     thisTimeoutLabel->setText("你已超时 " + QString::number(count) + " 次");
 }
 
 void ChessGamePanelView::chessGameDidChangeAnotherPlayerTimeoutCount(int count) {
     qDebug() << "Another player, timeout" << count;
-    if (!thatTimeoutLabel) {
-        thatTimeoutLabel = new QLabel();
+    if (count == 1) {
         timeoutVLayout->addWidget(thatTimeoutLabel);
-        auto font = QFont();
-        font.setPointSize(11);
-        thatTimeoutLabel->setFont(font);
     }
     thatTimeoutLabel->setText("对手超时 " + QString::number(count) + " 次");
 }

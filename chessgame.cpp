@@ -399,9 +399,7 @@ void ChessGame::updateTimeout() {
         thisTimeoutCount++;
         emit thisPlayerDidTimeout(thisTimeoutCount);
         if (thisTimeoutCount == 3) {
-            if (_state == Flip) {
-                setState(ThatWin);
-            }
+            setState(ThatWin);
             updateTimer->stop();
             return;
         }
@@ -409,9 +407,7 @@ void ChessGame::updateTimeout() {
         anotherTimeoutCount++;
         emit anotherPlayerDidTimeout(anotherTimeoutCount);
         if (anotherTimeoutCount == 3) {
-            if (_state == Flip) {
-                setState(ThisWin);
-            }
+            setState(ThisWin);
             updateTimer->stop();
             return;
         }

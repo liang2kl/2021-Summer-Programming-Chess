@@ -32,7 +32,7 @@ private slots:
     void networkDidReceiveMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
 
     // Client
-    void clientDidReceiveChessboardData(QVector<Chess> data);
+    void clientDidReceiveChessboardData(QVector<Chess> data, qint32 startIndex);
 
 signals:
     void didConnectToHost();

@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QPushButton>
+#include <QHBoxLayout>
+
 #include "chessgamemanager.h"
 
 class ChessGamePanelView : public QWidget {
@@ -10,7 +13,10 @@ class ChessGamePanelView : public QWidget {
 
 private:
     ChessGameManager *manager;
+    QHBoxLayout *hLayout;
     QLabel *stateLabel;
+    QLabel *stepsLabel;
+    QPushButton *surrenderButton;
 
     void updateWithState(ChessGame::State state);
 
@@ -19,7 +25,7 @@ public:
 
 private slots:
     void chessGameDidChangeState(ChessGame::State state);
-
+    void chessGameDidChangeIndex();
 signals:
 
 };

@@ -344,17 +344,29 @@ void ChessGame::moveChess(const ChessPoint &source, const ChessPoint &dest) {
     updateResultState();
 }
 
+void ChessGame::setStartIndex(qint32 index) {
+    startIndex = index;
+    __index = startIndex;
+    emit indexDidChange();
+}
+
+void ChessGame::increaseIndex() {
+    __index += 1;
+    emit indexDidChange();
+}
 
 // Game state
 
 void ChessGame::updateFlipState(Chess::Side side) {
     if (_state == Flip) {
-        // FIXME: 2 on start
-        if (lastFlippedSide == side) {
+
+        if (secondLatestFlippedSide == side) {
             setState(side == Chess::Side::Red ? BlueMove : RedMove);
         } else {
+            secondLatestFlippedSide = lastFlippedSide;
             lastFlippedSide = side;
         }
+
     } else {
         // FIXME: Really reasonable to put it here?
         setState(_state == RedMove ? BlueMove : RedMove);

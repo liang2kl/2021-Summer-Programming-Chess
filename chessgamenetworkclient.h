@@ -15,7 +15,7 @@ public:
     void disconnectFromHost();
 
 signals:
-    void didReceiveChessboardData(QVector<Chess> data);
+    void didReceiveChessboardData(QVector<Chess> data, qint32 startIndex);
 };
 
 #endif // CHESSGAMENETWORKCLIENT_H

@@ -16,11 +16,13 @@ void ChessGameNetworkServer::serverDidInitiateNewConnection() {
     emit didConnectToHost();
 }
 
-void ChessGameNetworkServer::sendChessboardData(QVector<Chess> data) {
+void ChessGameNetworkServer::sendChessboardData(QVector<Chess> data, qint32 startIndex) {
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::ReadWrite);
 
     stream << qint32(ChessGameNetworkBase::DataType::Chessboard);
+
+    stream << startIndex;
 
     for (auto chess : data) {
         stream << chess;

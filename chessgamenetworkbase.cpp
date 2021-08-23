@@ -15,12 +15,12 @@ void ChessGameNetworkBase::socketDidReceivedData() {
 }
 
 void ChessGameNetworkBase::handleReceivedData(QByteArray buffer) {
-    qint32 size, index;
+    qint32 index;
     qint32 type;
 
     QDataStream stream(&buffer, QIODevice::ReadOnly);
 
-    stream >> size >> type >> index;
+    stream >> type >> index;
 
     if (type == Flip) {
         ChessPoint pos;

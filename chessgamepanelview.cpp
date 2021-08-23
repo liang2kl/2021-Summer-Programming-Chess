@@ -1,21 +1,32 @@
 #include "chessgamepanelview.h"
 #include "constants.h"
 #include <QFont>
-#include <QHBoxLayout>
+
+static void setColorFor(QLabel *label, QColor color) {
+    auto palette = label->palette();
+    palette.setColor(label->foregroundRole(), color);
+    label->setPalette(palette);
+}
 
 ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *parent) :
     QWidget(parent), manager(manager) {
-    connect(manager->game(), &ChessGame::stateDidChange, this, &ChessGamePanelView::chessGameDidChangeState);
+    connect(manager->game(), &ChessGame::stateDidChange,
+            this, &ChessGamePanelView::chessGameDidChangeState);
+    connect(manager->game(), &ChessGame::indexDidChange,
+            this, &ChessGamePanelView::chessGameDidChangeIndex);
 
-    auto *layout = new QHBoxLayout(this);
+    hLayout = new QHBoxLayout(this);
 
     stateLabel = new QLabel();
-    layout->addWidget(stateLabel);
-    layout->addStretch();
+    stepsLabel = new QLabel();
+    hLayout->addWidget(stateLabel);
+    hLayout->addStretch();
+    hLayout->addWidget(stepsLabel);
 
     auto font = QFont();
     font.setPointSize(19);
     stateLabel->setFont(font);
+    stepsLabel->setFont(font);
 
     updateWithState(manager->game()->state());
 }
@@ -23,6 +34,7 @@ ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *paren
 void ChessGamePanelView::chessGameDidChangeState(ChessGame::State state) {
     updateWithState(state);
 }
+
 
 void ChessGamePanelView::updateWithState(ChessGame::State state) {
     QString text;
@@ -52,7 +64,17 @@ void ChessGamePanelView::updateWithState(ChessGame::State state) {
     }
 
     stateLabel->setText(text);
-    auto palette = stateLabel->palette();
-    palette.setColor(stateLabel->foregroundRole(), color);
-    stateLabel->setPalette(palette);
+    setColorFor(stateLabel, color);
+
+}
+
+void ChessGamePanelView::chessGameDidChangeIndex() {
+    if (manager->game()->canSurrender() && !surrenderButton) {
+        surrenderButton = new QPushButton();
+        surrenderButton->setText("投降");
+        hLayout->addWidget(surrenderButton);
+        // TODO: Surrender Action
+    }
+
+    stepsLabel->setText(QString::number(manager->game()->steps()));
 }

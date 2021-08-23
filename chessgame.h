@@ -41,11 +41,26 @@ public:
     void randomize();
     void setChesses(QVector<Chess> chesses);
 
+// Indexing
+private:
+    bool isServer;
+    qint32 startIndex = -1;
+    qint32 __index = -1;
+
+public:
+    void setIsServer(bool isServer) { this->isServer = isServer; }
+    void setStartIndex(qint32 index);
+    void increaseIndex();
+    qint32 index() const { return __index; }
+    bool canAct() const { return (__index % 2) ^ isServer; }
+    int steps() const { return __index - startIndex; }
+    bool canSurrender() const { return steps() > 20; }
+
 // Playing
 public:
     void flipChess(const ChessPoint &pos);
     void moveChess(const ChessPoint &source, const ChessPoint &dest);
-
+    // void surrender();
 // Game state
 public:
     enum State { Flip, BlueMove, RedMove, BlueWin, RedWin };
@@ -54,6 +69,7 @@ public:
 
 private:
     State _state = Flip;
+    int secondLatestFlippedSide = -1;
     int lastFlippedSide = -1;
     void updateFlipState(Chess::Side side);
     void updateResultState();
@@ -65,6 +81,7 @@ signals:
     void chessDidMove(const ChessPoint &source, const ChessPoint &dest);
     void chessDidRemoved(const ChessPoint &point);
     void stateDidChange(State state, State oldState);
+    void indexDidChange();
 };
 
 

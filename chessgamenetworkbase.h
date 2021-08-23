@@ -23,6 +23,8 @@ protected:
 signals:
     void didReceiveFlipChessData(const ChessPoint &pos, qint32 operationIndex);
     void didReceiveMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
+    void didConnectToHost();
+
 //    void diFailToSendData(int index);
 public:
     void sendFlipChessData(const ChessPoint &pos, qint32 operationIndex);

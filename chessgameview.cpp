@@ -13,7 +13,7 @@ ChessGameView::ChessGameView(ChessGameManager *manager, QWidget *parent)
     layout->addWidget(panelView);
     layout->addWidget(chessboardView);
 
-    setStyleSheet("background-color: #1b1b1b");
+    chessboardView->setStyleSheet("background-color: #1b1b1b");
 }
 
 void ChessGameView::resizeEvent(QResizeEvent *) {

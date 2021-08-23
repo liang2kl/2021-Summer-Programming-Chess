@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QNetworkInterface>
 #include <QRegularExpressionValidator>
+#include <QMessageBox>
 
 ChessGameConfigurationView::ChessGameConfigurationView(QWidget *parent) : QWidget(parent) {
     auto *layout = new QVBoxLayout(this);
@@ -36,6 +37,10 @@ ChessGameConfigurationView::ChessGameConfigurationView(QWidget *parent) : QWidge
                             + "(\\." + ipRange + ")$");
     QRegularExpressionValidator *ipValidator = new QRegularExpressionValidator(ipRegex, this);
     addressTextField->setValidator(ipValidator);
+    connect(addressTextField, &QLineEdit::textChanged, [clientRadioButton, this]() {
+        clientRadioButton->setChecked(true);
+        __isServer = false;
+    });
 
     auto *clientHLayout = new QHBoxLayout();
     clientHLayout->addWidget(clientRadioButton);
@@ -67,17 +72,20 @@ void ChessGameConfigurationView::didSetServer() {
 }
 
 void ChessGameConfigurationView::confirm() {
+    if (!__isServer && !this->addressTextField->hasAcceptableInput()) {
+        auto box = QMessageBox();
+        box.setText("IP 地址不合法");
+        box.exec();
+        return;
+    }
     setEnabled(false);
     manager = new ChessGameManager(__isServer);
 
+    connect(manager, &ChessGameManager::didConnectToHost,
+            this, &ChessGameConfigurationView::serverDidConnectToHost);
+
     if (!__isServer) {
         manager->connectToServer(addressTextField->text());
-        auto *view = new ChessGameView(manager);
-        view->show();
-        close();
-    } else {
-        connect(manager, &ChessGameManager::didConnectToHost,
-                this, &ChessGameConfigurationView::serverDidConnectToHost);
     }
 }
 

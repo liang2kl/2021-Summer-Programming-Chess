@@ -13,14 +13,10 @@ private:
 public:
     ChessGameNetworkServer();
     void startListening();
-    void sendChessboardData(QVector<Chess> data);
+    void sendChessboardData(QVector<Chess> data, qint32 startIndex);
 
 private slots:
     void serverDidInitiateNewConnection();
-
-signals:
-    void didConnectToHost();
-
 };
 
 #endif // CHESSGAMENETWORKSERVER_H

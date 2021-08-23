@@ -257,6 +257,8 @@ void ChessboardScene::setNewSize(const QSize &size) {
 // No model-relevant UI modification here! Just interacting with the model.
 void ChessboardScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
+    if (!manager->game()->canAct()) { return; }
+
     for (int i = 0; i < containerItems.size(); i++) {
         auto *item = containerItems[i];
 

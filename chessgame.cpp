@@ -433,7 +433,6 @@ void ChessGame::updateFlipState(Chess::Side side) {
 
         if (secondLatestFlippedSide == side) {
             setState(side == Chess::Side::Red ? BlueMove : RedMove);
-            emit didSetSide(side);
         } else {
             secondLatestFlippedSide = lastFlippedSide;
             lastFlippedSide = side;

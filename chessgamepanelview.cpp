@@ -23,11 +23,10 @@ ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *paren
             this, &ChessGamePanelView::chessGameDidChangeThisPlayerTimeoutCount);
     connect(manager->game(), &ChessGame::didStarted,
             this, &ChessGamePanelView::chessGameDidStarted);
-    connect(manager->game(), &ChessGame::didSetSide,
-            this, &ChessGamePanelView::chessGameDidSetSide);
 
     // Hierarchy
     hLayout = new QHBoxLayout(this);
+    hLayout->setSpacing(10);
 
     sideLabel = new QLabel();
     stateLabel = new QLabel();
@@ -37,10 +36,10 @@ ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *paren
     startButton = new QPushButton();
 
     hLayout->addWidget(stateLabel);
+    hLayout->addWidget(sideLabel);
     hLayout->addWidget(lcdNumber);
     hLayout->addLayout(timeoutVLayout);
     hLayout->addStretch();
-    hLayout->addWidget(sideLabel);
     hLayout->addWidget(stepsLabel);
     hLayout->addWidget(startButton);
 
@@ -59,6 +58,7 @@ ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *paren
     font.setPointSize(19);
     stateLabel->setFont(font);
     stepsLabel->setFont(font);
+    sideLabel->setFont(font);
 
     lcdNumber->setVisible(false);
     lcdNumber->setDigitCount(2);
@@ -142,8 +142,7 @@ void ChessGamePanelView::chessGameDidChangeIndex() {
 
     stepsLabel->setText(QString::number(manager->game()->steps()));
 
-    if (manager->game()->state() == ChessGame::State::Flip &&
-            manager->game()->isStarted()) {
+    if (manager->game()->isStarted()) {
         updateUnsidedLabel();
     }
 }
@@ -177,10 +176,6 @@ void ChessGamePanelView::chessGameDidStarted() {
     this->startButton->setVisible(false);
     this->hLayout->removeWidget(this->startButton);
     updateUnsidedLabel();
-}
-
-void ChessGamePanelView::chessGameDidSetSide(Chess::Side side) {
-    sideLabel->setText(side == Chess::Side::Red ? "你是红方" : "你是蓝方");
 }
 
 void ChessGamePanelView::updateUnsidedLabel() {

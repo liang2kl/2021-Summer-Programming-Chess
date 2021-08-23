@@ -43,6 +43,7 @@ private slots:
 
 signals:
     void didConnectToHost();
+    void didDisconnectToHost();
 };
 
 #endif // CHESSGAMEMANAGER_H

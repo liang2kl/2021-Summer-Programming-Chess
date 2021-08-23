@@ -15,6 +15,7 @@ private:
     ChessGameManager *manager;
 
     void resizeEvent(QResizeEvent *);
+    void closeEvent(QCloseEvent *event);
 public:
     ChessGameView(ChessGameManager *manager, QWidget *parent = nullptr);
 

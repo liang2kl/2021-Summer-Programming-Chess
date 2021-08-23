@@ -42,7 +42,6 @@ private slots:
     void chessGameDidChangeAnotherPlayerTimeoutCount(int count);
     void chessGameDidUpdateRemainingSeconds(int seconds);
     void chessGameDidStarted();
-    void chessGameDidSetSide(Chess::Side side);
 signals:
 
 };

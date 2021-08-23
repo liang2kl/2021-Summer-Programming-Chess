@@ -31,6 +31,8 @@ ChessGameManager::ChessGameManager(bool isServer) : isServer(isServer) {
             this, &ChessGameManager::networkDidReceiveSurrender);
     connect(network, &ChessGameNetworkBase::didReceiveStart,
             this, &ChessGameManager::networkDidReceiveStart);
+    connect(network, &ChessGameNetworkBase::didLostConnection,
+            this, &ChessGameManager::didDisconnectToHost);
 }
 
 void ChessGameManager::connectToServer(const QString &hostName) {

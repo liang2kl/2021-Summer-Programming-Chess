@@ -101,7 +101,6 @@ signals:
     void thisPlayerDidTimeout(int times);
     void anotherPlayerDidTimeout(int times);
     void didStarted();
-    void didSetSide(Chess::Side side);
 };
 
 

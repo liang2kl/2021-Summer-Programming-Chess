@@ -24,6 +24,7 @@ public:
 
     void connectToServer(const QString &hostName);
     void startListening();
+    void disconnectAll();
 
     void startGame();
     void flipChess(const ChessPoint &pos);

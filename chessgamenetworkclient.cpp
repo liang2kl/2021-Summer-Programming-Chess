@@ -17,10 +17,6 @@ void ChessGameNetworkClient::connectToHost(const QString &hostName) {
     qDebug() << "Connecting";
 }
 
-void ChessGameNetworkClient::disconnectFromHost() {
-    socket->disconnectFromHost();
-}
-
 void ChessGameNetworkClient::handleReceivedData(QByteArray buffer) {
     QByteArray copy = buffer;
     qint32 type;

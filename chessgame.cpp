@@ -358,7 +358,6 @@ void ChessGame::moveChess(const ChessPoint &source, const ChessPoint &dest) {
 
 void ChessGame::surrender(bool isOpposite) {
     assert(canSurrender());
-    stopTimer();
     setState(isOpposite ? ThisWin : ThatWin);
 }
 
@@ -407,7 +406,6 @@ void ChessGame::updateTimeout() {
         emit thisPlayerDidTimeout(thisTimeoutCount);
         if (thisTimeoutCount == 3) {
             setState(ThatWin);
-            updateTimer->stop();
             return;
         }
     } else {
@@ -415,7 +413,6 @@ void ChessGame::updateTimeout() {
         emit anotherPlayerDidTimeout(anotherTimeoutCount);
         if (anotherTimeoutCount == 3) {
             setState(ThisWin);
-            updateTimer->stop();
             return;
         }
     }
@@ -505,6 +502,10 @@ void ChessGame::updateResultState() {
 }
 
 void ChessGame::setState(State state) {
+    if (state == BlueWin || state == RedWin ||
+            state == ThisWin || state == ThatWin) {
+        stopTimer();
+    }
     emit stateDidChange(state, _state);
     _state = state;
 }

@@ -6,6 +6,10 @@ void ChessGameNetworkBase::connectToSocket(QTcpSocket *socket) {
     QObject::connect(socket, &QTcpSocket::readyRead, this, &ChessGameNetworkBase::socketDidReceivedData);
 }
 
+void ChessGameNetworkBase::disconnectFromHost() {
+    socket->disconnectFromHost();
+}
+
 void ChessGameNetworkBase::socketDidReceivedData() {
     QByteArray buffer = socket->readAll();
 

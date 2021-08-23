@@ -19,10 +19,10 @@ ChessGameView::ChessGameView(ChessGameManager *manager, QWidget *parent)
 
     connect(manager, &ChessGameManager::didDisconnectToHost,
             [this]() {
-        close();
-        auto *box = new QMessageBox();
-        box->setText("失去连接，游戏结束");
-        box->exec();
+       auto *box = new QMessageBox();
+       box->setText("失去连接，游戏结束");
+       box->exec();
+       close();
     });
 }
 
@@ -31,6 +31,7 @@ void ChessGameView::resizeEvent(QResizeEvent *) {
 }
 
 void ChessGameView::closeEvent(QCloseEvent *event) {
+    manager->disconnectAll();
     auto *view = new ChessGameConfigurationView();
     view->show();
 

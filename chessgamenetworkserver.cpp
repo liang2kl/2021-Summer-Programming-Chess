@@ -10,6 +10,10 @@ void ChessGameNetworkServer::startListening() {
     connect(server, &QTcpServer::newConnection, this, &ChessGameNetworkServer::serverDidInitiateNewConnection);
 }
 
+void ChessGameNetworkServer::stopListening() {
+    server->close();
+}
+
 void ChessGameNetworkServer::serverDidInitiateNewConnection() {
     auto *socket = server->nextPendingConnection();
     connectToSocket(socket);

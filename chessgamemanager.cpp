@@ -40,6 +40,13 @@ void ChessGameManager::connectToServer(const QString &hostName) {
     client->connectToHost(hostName);
 }
 
+void ChessGameManager::disconnectAll() {
+    network->disconnectFromHost();
+    if (isServer) {
+        server->stopListening();
+    }
+}
+
 void ChessGameManager::startGame() {
     assert(!thisStarted);
     thisStarted = true;

@@ -31,6 +31,7 @@ signals:
     void didLostConnection();
 
 public:
+    void disconnectFromHost();
     void sendFlipChessData(const ChessPoint &pos, qint32 operationIndex);
     void sendMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
     void sendStart();

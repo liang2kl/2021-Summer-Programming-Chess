@@ -13,6 +13,7 @@ private:
 public:
     ChessGameNetworkServer();
     void startListening();
+    void stopListening();
     void sendChessboardData(QVector<Chess> data, qint32 startIndex);
 
 private slots:

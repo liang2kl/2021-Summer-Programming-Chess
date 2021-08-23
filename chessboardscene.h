@@ -22,6 +22,7 @@ private:
 private:
     // Initial drawing
     void drawScene();
+    void redraw();
     void drawLines(const QVector<QPoint>& cellCenters);
     void drawRects(const QVector<QPoint>& cellCenters);
     void drawCircles(const QVector<QPoint>& cellCenters);
@@ -58,14 +59,16 @@ private:
     // Touch event
     void mousePressEvent(QGraphicsSceneMouseEvent *);
 
-public slots:
-    void resizeEvent(QResizeEvent * event);
-
+private slots:
     // Respond to model signals.
     void chessGameDidFlipChess(const ChessPoint &pos);
     void chessGameDidMoveChess(const ChessPoint &source, const ChessPoint &dest);
     void chessGameDidRemoveChess(const ChessPoint &pos);
     void chessGameDidUpdateChesses();
+    void chessGameDidTimeout();
+
+public slots:
+    void resizeEvent(QResizeEvent * event);
 
 signals:
     void didFinishRender();

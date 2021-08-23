@@ -1,6 +1,7 @@
 #include "chessgamepanelview.h"
 #include "constants.h"
 #include <QFont>
+#include <QMessageBox>
 
 static void setColorFor(QLabel *label, QColor color) {
     auto palette = label->palette();
@@ -95,15 +96,20 @@ void ChessGamePanelView::updateWithState(ChessGame::State state) {
         break;
     }
 
+    stateLabel->setText(text);
+    setColorFor(stateLabel, color);
+
     if (state == ChessGame::State::RedWin || state == ChessGame::State::BlueWin ||
             state == ChessGame::State::ThisWin || state == ChessGame::State::ThatWin) {
         if (surrenderButton) {
             surrenderButton->setEnabled(false);
         }
-    }
 
-    stateLabel->setText(text);
-    setColorFor(stateLabel, color);
+        auto box = QMessageBox();
+        box.setText(text);
+        box.setWindowModality(Qt::ApplicationModal);
+        box.exec();
+    }
 
 }
 
@@ -113,6 +119,8 @@ void ChessGamePanelView::chessGameDidChangeIndex() {
         surrenderButton->setText("投降");
         hLayout->addWidget(surrenderButton);
         // TODO: Surrender Action
+        connect(surrenderButton, &QPushButton::clicked,
+                [this]() { this->manager->surrender(); });
     }
 
     stepsLabel->setText(QString::number(manager->game()->steps()));

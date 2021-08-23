@@ -9,8 +9,6 @@ void ChessGameNetworkBase::connectToSocket(QTcpSocket *socket) {
 void ChessGameNetworkBase::socketDidReceivedData() {
     QByteArray buffer = socket->readAll();
 
-    // FIXME
-    assert(buffer.size() > 4);
     this->handleReceivedData(buffer);
 }
 
@@ -20,16 +18,11 @@ void ChessGameNetworkBase::handleReceivedData(QByteArray buffer) {
 
     QDataStream stream(&buffer, QIODevice::ReadOnly);
 
-    stream >> type;
+    stream >> type >> index;
 
     if (type == Surrender) {
         emit didReceiveSurrender();
-        return;
-    }
-
-    stream >> index;
-
-    if (type == Flip) {
+    } else if (type == Flip) {
         ChessPoint pos;
         stream >> pos;
         emit didReceiveFlipChessData(pos, index);
@@ -61,7 +54,7 @@ void ChessGameNetworkBase::sendSurrender() {
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::ReadWrite);
 
-    stream << qint32(Surrender);
+    stream << qint32(Surrender) << qint32(1000);
     sendBytes(bytes);
 }
 

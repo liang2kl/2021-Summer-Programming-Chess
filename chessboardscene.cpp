@@ -12,6 +12,7 @@ ChessboardScene::ChessboardScene(ChessGameManager *manager, int initialHeight)
     connect(game, &ChessGame::chessDidMove, this, &ChessboardScene::chessGameDidMoveChess);
     connect(game, &ChessGame::chessDidRemoved, this, &ChessboardScene::chessGameDidRemoveChess);
     connect(game, &ChessGame::didUpdateChesses, this, &ChessboardScene::chessGameDidUpdateChesses);
+    connect(game, &ChessGame::thisPlayerDidTimeout, this, &ChessboardScene::chessGameDidTimeout);
     setNewSize(QSize(0, initialHeight));
     drawScene();
 }
@@ -29,6 +30,16 @@ void ChessboardScene::drawScene() {
     drawSelectionIndicator();
 
     emit didFinishRender();
+}
+
+void ChessboardScene::redraw() {
+    qDebug() << "Redraw";
+    this->clear();
+    chessItems = QVector<ChessGraphicsItem *>(60);
+    containerItems = QVector<QGraphicsItem *>(60);
+    highlightItems = {};
+
+    drawScene();
 }
 
 void ChessboardScene::drawChesses(const QVector<QPoint>& cellCenters) {
@@ -240,12 +251,7 @@ void ChessboardScene::resizeEvent(QResizeEvent *event) {
     if (abs(event->size().height() - event->oldSize().height()) < 2) { return; }
     setNewSize(event->size());
 
-    this->clear();
-    chessItems = QVector<ChessGraphicsItem *>(60);
-    containerItems = QVector<QGraphicsItem *>(60);
-    highlightItems = {};
-
-    drawScene();
+    redraw();
 }
 
 void ChessboardScene::setNewSize(const QSize &size) {
@@ -358,6 +364,10 @@ void ChessboardScene::chessGameDidRemoveChess(const ChessPoint &pos) {
 
 void ChessboardScene::chessGameDidUpdateChesses() {
     drawScene();
+}
+
+void ChessboardScene::chessGameDidTimeout() {
+    setSelectedIndex(-1);
 }
 
 // State

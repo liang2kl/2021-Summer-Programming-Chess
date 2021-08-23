@@ -66,7 +66,7 @@ public:
     qint32 index() const { return __index; }
     bool canAct() const;
     int steps() const { return __index - startIndex; }
-    bool canSurrender() const { return steps() > 20; }
+    bool canSurrender() const { return steps() >= 20; }
 
 // Playing
 public:

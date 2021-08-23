@@ -26,7 +26,8 @@ void ChessGameNetworkClient::handleReceivedData(QByteArray buffer) {
     stream >> type;
 
     if (type == ChessGameNetworkClient::DataType::Flip ||
-            type == ChessGameNetworkClient::DataType::Move) {
+            type == ChessGameNetworkClient::DataType::Move ||
+            type == ChessGameNetworkBase::DataType::Surrender) {
         return ChessGameNetworkBase::handleReceivedData(copy);
     }
 

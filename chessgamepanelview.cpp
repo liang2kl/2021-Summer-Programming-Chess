@@ -14,19 +14,35 @@ ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *paren
             this, &ChessGamePanelView::chessGameDidChangeState);
     connect(manager->game(), &ChessGame::indexDidChange,
             this, &ChessGamePanelView::chessGameDidChangeIndex);
+    connect(manager->game(), &ChessGame::remainingTimeDidChange,
+            this, &ChessGamePanelView::chessGameDidUpdateRemainingSeconds);
+    connect(manager->game(), &ChessGame::anotherPlayerDidTimeout,
+            this, &ChessGamePanelView::chessGameDidChangeAnotherPlayerTimeoutCount);
+    connect(manager->game(), &ChessGame::thisPlayerDidTimeout,
+            this, &ChessGamePanelView::chessGameDidChangeThisPlayerTimeoutCount);
 
     hLayout = new QHBoxLayout(this);
 
     stateLabel = new QLabel();
     stepsLabel = new QLabel();
+    timeoutVLayout = new QVBoxLayout();
+    lcdNumber = new QLCDNumber();
+
     hLayout->addWidget(stateLabel);
+    hLayout->addWidget(lcdNumber);
+    hLayout->addLayout(timeoutVLayout);
     hLayout->addStretch();
     hLayout->addWidget(stepsLabel);
+
+    timeoutVLayout->setSpacing(0);
 
     auto font = QFont();
     font.setPointSize(19);
     stateLabel->setFont(font);
     stepsLabel->setFont(font);
+
+    lcdNumber->setVisible(false);
+    lcdNumber->setDigitCount(2);
 
     updateWithState(manager->game()->state());
 }
@@ -61,6 +77,21 @@ void ChessGamePanelView::updateWithState(ChessGame::State state) {
         text = "红方胜利";
         color = Constant::red;
         break;
+    case ChessGame::State::ThisWin:
+        text = "你胜利";
+        color = Qt::black;
+        break;
+    case ChessGame::State::ThatWin:
+        text = "对手胜利";
+        color = Qt::black;
+        break;
+    }
+
+    if (state == ChessGame::State::RedWin || state == ChessGame::State::BlueWin ||
+            state == ChessGame::State::ThisWin || state == ChessGame::State::ThatWin) {
+        if (surrenderButton) {
+            surrenderButton->setEnabled(false);
+        }
     }
 
     stateLabel->setText(text);
@@ -77,4 +108,36 @@ void ChessGamePanelView::chessGameDidChangeIndex() {
     }
 
     stepsLabel->setText(QString::number(manager->game()->steps()));
+}
+
+void ChessGamePanelView::chessGameDidChangeThisPlayerTimeoutCount(int count) {
+    qDebug() << "This player, timeout" << count;
+    if (!thisTimeoutLabel) {
+        thisTimeoutLabel = new QLabel();
+        timeoutVLayout->addWidget(thisTimeoutLabel);
+        auto font = QFont();
+        font.setPointSize(11);
+        thisTimeoutLabel->setFont(font);
+    }
+    thisTimeoutLabel->setText("你已超时 " + QString::number(count) + " 次");
+}
+
+void ChessGamePanelView::chessGameDidChangeAnotherPlayerTimeoutCount(int count) {
+    qDebug() << "Another player, timeout" << count;
+    if (!thatTimeoutLabel) {
+        thatTimeoutLabel = new QLabel();
+        timeoutVLayout->addWidget(thatTimeoutLabel);
+        auto font = QFont();
+        font.setPointSize(11);
+        thatTimeoutLabel->setFont(font);
+    }
+    thatTimeoutLabel->setText("对手超时 " + QString::number(count) + " 次");
+}
+
+void ChessGamePanelView::chessGameDidUpdateRemainingSeconds(int seconds) {
+    if (!lcdNumber->isVisible()) {
+        lcdNumber->setVisible(true);
+    }
+    lcdNumber->display(seconds);
+    qDebug() << seconds;
 }

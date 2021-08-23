@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QMap>
 #include <QQueue>
+#include <QTimer>
 
 class ChessGame: public QObject {
     Q_OBJECT
@@ -41,18 +42,29 @@ public:
     void randomize();
     void setChesses(QVector<Chess> chesses);
 
-// Indexing
+// Indexing and timer
 private:
     bool isServer;
     qint32 startIndex = -1;
     qint32 __index = -1;
 
+    // Manage timeout state locally
+    QTimer *updateTimer;
+    int currentSecond;
+
+    int thisTimeoutCount = 0;
+    int anotherTimeoutCount = 0;
+
+    void increaseIndex();
+    void startTimer();
+    void stopTimer();
+    void updateTimeout();
+
 public:
     void setIsServer(bool isServer) { this->isServer = isServer; }
     void setStartIndex(qint32 index);
-    void increaseIndex();
     qint32 index() const { return __index; }
-    bool canAct() const { return (__index % 2) ^ isServer; }
+    bool canAct() const;
     int steps() const { return __index - startIndex; }
     bool canSurrender() const { return steps() > 20; }
 
@@ -60,10 +72,10 @@ public:
 public:
     void flipChess(const ChessPoint &pos);
     void moveChess(const ChessPoint &source, const ChessPoint &dest);
-    // void surrender();
+    void surrender(bool isOpposite);
 // Game state
 public:
-    enum State { Flip, BlueMove, RedMove, BlueWin, RedWin };
+    enum State { Flip, BlueMove, RedMove, BlueWin, RedWin, ThisWin, ThatWin };
 
     State state() const { return _state; }
 
@@ -82,6 +94,9 @@ signals:
     void chessDidRemoved(const ChessPoint &point);
     void stateDidChange(State state, State oldState);
     void indexDidChange();
+    void remainingTimeDidChange(int seconds);
+    void thisPlayerDidTimeout(int times);
+    void anotherPlayerDidTimeout(int times);
 };
 
 

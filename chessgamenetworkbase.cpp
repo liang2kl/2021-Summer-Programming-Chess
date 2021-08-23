@@ -20,7 +20,14 @@ void ChessGameNetworkBase::handleReceivedData(QByteArray buffer) {
 
     QDataStream stream(&buffer, QIODevice::ReadOnly);
 
-    stream >> type >> index;
+    stream >> type;
+
+    if (type == Surrender) {
+        emit didReceiveSurrender();
+        return;
+    }
+
+    stream >> index;
 
     if (type == Flip) {
         ChessPoint pos;
@@ -47,6 +54,14 @@ void ChessGameNetworkBase::sendMoveChessData(const ChessPoint &src, const ChessP
     QDataStream stream(&bytes, QIODevice::ReadWrite);
 
     stream << qint32(Move) << operationIndex << src << des;
+    sendBytes(bytes);
+}
+
+void ChessGameNetworkBase::sendSurrender() {
+    QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::ReadWrite);
+
+    stream << qint32(Surrender);
     sendBytes(bytes);
 }
 

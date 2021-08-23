@@ -13,6 +13,7 @@ private:
     bool isServer;
     ChessGameNetworkClient *client;
     ChessGameNetworkServer *server;
+    ChessGameNetworkBase *network;
     ChessGame *_game;
 
 public:
@@ -24,12 +25,14 @@ public:
 
     void flipChess(const ChessPoint &pos);
     void moveChess(const ChessPoint &src, const ChessPoint &des);
+    void surrender();
 
 private slots:
     // General
     void networkDidConnectToHost();
     void networkDidReceiveFlipChessData(const ChessPoint &pos, qint32 operationIndex);
     void networkDidReceiveMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
+    void networkDidReceiveSurrender();
 
     // Client
     void clientDidReceiveChessboardData(QVector<Chess> data, qint32 startIndex);

@@ -24,6 +24,17 @@ ChessGame::ChessGame() {
 
     railwayIndices = indices;
     railwayIndexMap = map;
+
+    updateTimer = new QTimer();
+    updateTimer->setInterval(1000);
+    updateTimer->callOnTimeout([this]() {
+        this->currentSecond--;
+        emit remainingTimeDidChange(this->currentSecond);
+
+        if (this->currentSecond == 0) {
+            this->updateTimeout();
+        }
+    });
 }
 
 void ChessGame::setChesses(QVector<Chess> chesses) {
@@ -306,6 +317,7 @@ void ChessGame::flipChess(const ChessPoint &pos) {
     auto *chess = _chesses[indexOfPoint(pos)];
     chess->flip();
     emit chessDidFlip(pos);
+    increaseIndex();
     updateFlipState(chess->side());
 }
 
@@ -340,8 +352,33 @@ void ChessGame::moveChess(const ChessPoint &source, const ChessPoint &dest) {
             emit chessDidRemoved(source);
         }
     }
-
+    increaseIndex();
     updateResultState();
+}
+
+void ChessGame::surrender(bool isOpposite) {
+    assert(canSurrender());
+    stopTimer();
+    setState(isOpposite ? ThisWin : ThatWin);
+}
+
+bool ChessGame::canAct() const {
+    if (_state == BlueWin || _state == RedWin ||
+            _state == ThisWin || _state == ThatWin) {
+        return false;
+    }
+
+    return (__index % 2) ^ isServer;
+}
+
+void ChessGame::startTimer() {
+    currentSecond = 20;
+    updateTimer->start();
+    emit remainingTimeDidChange(20);
+}
+
+void ChessGame::stopTimer() {
+    updateTimer->stop();
 }
 
 void ChessGame::setStartIndex(qint32 index) {
@@ -352,7 +389,38 @@ void ChessGame::setStartIndex(qint32 index) {
 
 void ChessGame::increaseIndex() {
     __index += 1;
+    stopTimer();
     emit indexDidChange();
+    startTimer();
+}
+
+void ChessGame::updateTimeout() {
+    if (canAct()) {
+        thisTimeoutCount++;
+        emit thisPlayerDidTimeout(thisTimeoutCount);
+        if (thisTimeoutCount == 3) {
+            if (_state == Flip) {
+                setState(ThatWin);
+            }
+            updateTimer->stop();
+            return;
+        }
+    } else {
+        anotherTimeoutCount++;
+        emit anotherPlayerDidTimeout(anotherTimeoutCount);
+        if (anotherTimeoutCount == 3) {
+            if (_state == Flip) {
+                setState(ThisWin);
+            }
+            updateTimer->stop();
+            return;
+        }
+    }
+    increaseIndex();
+
+    if (_state != Flip) {
+        setState(_state == RedMove ? BlueMove : RedMove);
+    }
 }
 
 // Game state

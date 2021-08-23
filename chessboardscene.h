@@ -62,7 +62,6 @@ public slots:
     void resizeEvent(QResizeEvent * event);
 
     // Respond to model signals.
-    void chessGameDidChangeState(ChessGame::State state);
     void chessGameDidFlipChess(const ChessPoint &pos);
     void chessGameDidMoveChess(const ChessPoint &source, const ChessPoint &dest);
     void chessGameDidRemoveChess(const ChessPoint &pos);

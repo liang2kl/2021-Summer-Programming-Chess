@@ -11,6 +11,8 @@ class ChessGameManager : public QObject
     Q_OBJECT
 private:
     bool isServer;
+    bool thisStarted = false;
+    bool oppositeStarted = false;
     ChessGameNetworkClient *client;
     ChessGameNetworkServer *server;
     ChessGameNetworkBase *network;
@@ -23,6 +25,7 @@ public:
     void connectToServer(const QString &hostName);
     void startListening();
 
+    void startGame();
     void flipChess(const ChessPoint &pos);
     void moveChess(const ChessPoint &src, const ChessPoint &des);
     void surrender();
@@ -33,6 +36,7 @@ private slots:
     void networkDidReceiveFlipChessData(const ChessPoint &pos, qint32 operationIndex);
     void networkDidReceiveMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
     void networkDidReceiveSurrender();
+    void networkDidReceiveStart();
 
     // Client
     void clientDidReceiveChessboardData(QVector<Chess> data, qint32 startIndex);

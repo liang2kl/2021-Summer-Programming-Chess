@@ -362,7 +362,14 @@ void ChessGame::surrender(bool isOpposite) {
     setState(isOpposite ? ThisWin : ThatWin);
 }
 
+void ChessGame::start() {
+    started = true;
+    emit didStarted();
+    increaseIndex();
+}
+
 bool ChessGame::canAct() const {
+    if (!started) { return false; }
     if (_state == BlueWin || _state == RedWin ||
             _state == ThisWin || _state == ThatWin) {
         return false;
@@ -426,6 +433,7 @@ void ChessGame::updateFlipState(Chess::Side side) {
 
         if (secondLatestFlippedSide == side) {
             setState(side == Chess::Side::Red ? BlueMove : RedMove);
+            emit didSetSide(side);
         } else {
             secondLatestFlippedSide = lastFlippedSide;
             lastFlippedSide = side;

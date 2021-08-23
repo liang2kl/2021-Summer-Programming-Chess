@@ -21,20 +21,30 @@ ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *paren
             this, &ChessGamePanelView::chessGameDidChangeAnotherPlayerTimeoutCount);
     connect(manager->game(), &ChessGame::thisPlayerDidTimeout,
             this, &ChessGamePanelView::chessGameDidChangeThisPlayerTimeoutCount);
+    connect(manager->game(), &ChessGame::didStarted,
+            this, &ChessGamePanelView::chessGameDidStarted);
+    connect(manager->game(), &ChessGame::didSetSide,
+            this, &ChessGamePanelView::chessGameDidSetSide);
 
+    // Hierarchy
     hLayout = new QHBoxLayout(this);
 
+    sideLabel = new QLabel();
     stateLabel = new QLabel();
     stepsLabel = new QLabel();
     timeoutVLayout = new QVBoxLayout();
     lcdNumber = new QLCDNumber();
+    startButton = new QPushButton();
 
     hLayout->addWidget(stateLabel);
     hLayout->addWidget(lcdNumber);
     hLayout->addLayout(timeoutVLayout);
     hLayout->addStretch();
+    hLayout->addWidget(sideLabel);
     hLayout->addWidget(stepsLabel);
+    hLayout->addWidget(startButton);
 
+    // Configuration
     timeoutVLayout->setSpacing(0);
 
     thatTimeoutLabel = new QLabel();
@@ -53,13 +63,20 @@ ChessGamePanelView::ChessGamePanelView(ChessGameManager *manager, QWidget *paren
     lcdNumber->setVisible(false);
     lcdNumber->setDigitCount(2);
 
+    startButton->setText("开始");
+    connect(startButton, &QPushButton::clicked,
+            [this]() {
+        this->manager->startGame();
+        this->startButton->setText("等待中");
+        this->startButton->setEnabled(false);
+    });
+
     updateWithState(manager->game()->state());
 }
 
 void ChessGamePanelView::chessGameDidChangeState(ChessGame::State state) {
     updateWithState(state);
 }
-
 
 void ChessGamePanelView::updateWithState(ChessGame::State state) {
     QString text;
@@ -124,6 +141,11 @@ void ChessGamePanelView::chessGameDidChangeIndex() {
     }
 
     stepsLabel->setText(QString::number(manager->game()->steps()));
+
+    if (manager->game()->state() == ChessGame::State::Flip &&
+            manager->game()->isStarted()) {
+        updateUnsidedLabel();
+    }
 }
 
 void ChessGamePanelView::chessGameDidChangeThisPlayerTimeoutCount(int count) {
@@ -149,4 +171,19 @@ void ChessGamePanelView::chessGameDidUpdateRemainingSeconds(int seconds) {
     }
     lcdNumber->display(seconds);
     qDebug() << seconds;
+}
+
+void ChessGamePanelView::chessGameDidStarted() {
+    this->startButton->setVisible(false);
+    this->hLayout->removeWidget(this->startButton);
+    updateUnsidedLabel();
+}
+
+void ChessGamePanelView::chessGameDidSetSide(Chess::Side side) {
+    sideLabel->setText(side == Chess::Side::Red ? "你是红方" : "你是蓝方");
+}
+
+void ChessGamePanelView::updateUnsidedLabel() {
+    bool isCurrentSide = manager->game()->canAct();
+    sideLabel->setText(isCurrentSide ? "轮到你" : "轮到对手");
 }

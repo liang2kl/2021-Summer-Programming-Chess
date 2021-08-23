@@ -10,6 +10,10 @@ void ChessGameNetworkClient::connectToHost(const QString &hostName) {
     socket->connectToHost(hostName, Constant::portNumber);
     connect(socket, &QTcpSocket::connected,
             this, &ChessGameNetworkBase::didConnectToHost);
+    connect(socket, &QTcpSocket::errorOccurred,
+            this, &ChessGameNetworkBase::didFailToConnectToHost);
+    connect(socket, &QTcpSocket::stateChanged,
+           this, &ChessGameNetworkClient::socketDidChangeState);
     qDebug() << "Connecting";
 }
 
@@ -25,9 +29,7 @@ void ChessGameNetworkClient::handleReceivedData(QByteArray buffer) {
 
     stream >> type;
 
-    if (type == ChessGameNetworkClient::DataType::Flip ||
-            type == ChessGameNetworkClient::DataType::Move ||
-            type == ChessGameNetworkBase::DataType::Surrender) {
+    if (type != ChessGameNetworkBase::DataType::Chessboard) {
         return ChessGameNetworkBase::handleReceivedData(copy);
     }
 

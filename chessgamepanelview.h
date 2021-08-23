@@ -18,13 +18,19 @@ private:
     QHBoxLayout *hLayout;
     QVBoxLayout *timeoutVLayout;
     QLabel *stateLabel;
+    QLabel *sideLabel;
     QLabel *stepsLabel;
-    QPushButton *surrenderButton;
+    QPushButton *surrenderButton = nullptr;
+    QPushButton *startButton = nullptr;
     QLCDNumber *lcdNumber;
     QLabel *thisTimeoutLabel;
     QLabel *thatTimeoutLabel;
 
+    bool didSetSide = false;
+
     void updateWithState(ChessGame::State state);
+private slots:
+    void updateUnsidedLabel();
 
 public:
     ChessGamePanelView(ChessGameManager *manager, QWidget *parent = nullptr);
@@ -35,6 +41,8 @@ private slots:
     void chessGameDidChangeThisPlayerTimeoutCount(int count);
     void chessGameDidChangeAnotherPlayerTimeoutCount(int count);
     void chessGameDidUpdateRemainingSeconds(int seconds);
+    void chessGameDidStarted();
+    void chessGameDidSetSide(Chess::Side side);
 signals:
 
 };

@@ -22,6 +22,8 @@ void ChessGameNetworkBase::handleReceivedData(QByteArray buffer) {
 
     if (type == Surrender) {
         emit didReceiveSurrender();
+    } else if (type == Start) {
+        emit didReceiveStart();
     } else if (type == Flip) {
         ChessPoint pos;
         stream >> pos;
@@ -50,6 +52,14 @@ void ChessGameNetworkBase::sendMoveChessData(const ChessPoint &src, const ChessP
     sendBytes(bytes);
 }
 
+void ChessGameNetworkBase::sendStart() {
+    QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::ReadWrite);
+
+    stream << qint32(Start) << qint32(1000);
+    sendBytes(bytes);
+}
+
 void ChessGameNetworkBase::sendSurrender() {
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::ReadWrite);
@@ -61,4 +71,10 @@ void ChessGameNetworkBase::sendSurrender() {
 void ChessGameNetworkBase::sendBytes(QByteArray bytes) {
     assert(socket->state() == QAbstractSocket::ConnectedState);
     socket->write(bytes);
+}
+
+void ChessGameNetworkBase::socketDidChangeState(QAbstractSocket::SocketState state) {
+    if (state == QAbstractSocket::SocketState::ClosingState) {
+        emit didLostConnection();
+    }
 }

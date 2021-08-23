@@ -13,6 +13,8 @@ void ChessGameNetworkServer::startListening() {
 void ChessGameNetworkServer::serverDidInitiateNewConnection() {
     auto *socket = server->nextPendingConnection();
     connectToSocket(socket);
+    connect(socket, &QTcpSocket::stateChanged,
+           this, &ChessGameNetworkServer::socketDidChangeState);
     emit didConnectToHost();
 }
 

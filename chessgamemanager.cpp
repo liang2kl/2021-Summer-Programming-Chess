@@ -29,6 +29,8 @@ ChessGameManager::ChessGameManager(bool isServer) : isServer(isServer) {
             this, &ChessGameManager::networkDidReceiveMoveChessData);
     connect(network, &ChessGameNetworkBase::didReceiveSurrender,
             this, &ChessGameManager::networkDidReceiveSurrender);
+    connect(network, &ChessGameNetworkBase::didReceiveStart,
+            this, &ChessGameManager::networkDidReceiveStart);
 }
 
 void ChessGameManager::connectToServer(const QString &hostName) {
@@ -36,23 +38,33 @@ void ChessGameManager::connectToServer(const QString &hostName) {
     client->connectToHost(hostName);
 }
 
+void ChessGameManager::startGame() {
+    assert(!thisStarted);
+    thisStarted = true;
+    if (oppositeStarted) {
+        _game->start();
+    }
+    network->sendStart();
+}
+
 void ChessGameManager::flipChess(const ChessPoint &pos) {
-    // TODO
+    // Send data first cause message box will block the UI.
     assert(_game->canAct());
+    network->sendFlipChessData(pos, _game->index() + 1);
     _game->flipChess(pos);
-    network->sendFlipChessData(pos, _game->index());
 }
 
 void ChessGameManager::moveChess(const ChessPoint &src, const ChessPoint &dest) {
-    // TODO
+    // Send data first cause message box will block the UI.
     assert(_game->canAct());
+    network->sendMoveChessData(src, dest, _game->index() + 1);
     _game->moveChess(src, dest);
-    network->sendMoveChessData(src, dest, _game->index());
 }
 
 void ChessGameManager::surrender() {
-    _game->surrender(false);
+    // Send data first cause message box will block the UI.
     network->sendSurrender();
+    _game->surrender(false);
 }
 
 void ChessGameManager::networkDidConnectToHost() {
@@ -85,6 +97,14 @@ void ChessGameManager::networkDidReceiveFlipChessData(const ChessPoint &pos, qin
 void ChessGameManager::networkDidReceiveMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex) {
     assert(operationIndex == _game->index() + 1);
     _game->moveChess(src, des);
+}
+
+void ChessGameManager::networkDidReceiveStart() {
+    oppositeStarted = true;
+    if (thisStarted) {
+        _game->start();
+    }
+    qDebug() << "Oppo Started";
 }
 
 void ChessGameManager::networkDidReceiveSurrender() {

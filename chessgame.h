@@ -47,6 +47,7 @@ private:
     bool isServer;
     qint32 startIndex = -1;
     qint32 __index = -1;
+    bool started = false;
 
     // Manage timeout state locally
     QTimer *updateTimer;
@@ -63,6 +64,8 @@ private:
 public:
     void setIsServer(bool isServer) { this->isServer = isServer; }
     void setStartIndex(qint32 index);
+    void start();
+    bool isStarted() const { return started; }
     qint32 index() const { return __index; }
     bool canAct() const;
     int steps() const { return __index - startIndex; }
@@ -97,6 +100,8 @@ signals:
     void remainingTimeDidChange(int seconds);
     void thisPlayerDidTimeout(int times);
     void anotherPlayerDidTimeout(int times);
+    void didStarted();
+    void didSetSide(Chess::Side side);
 };
 
 

@@ -7,15 +7,14 @@
 class ChessGameNetworkBase : public QObject
 {
     Q_OBJECT
-private:
-    QTcpSocket *socket;
-
 protected slots:
     void socketDidReceivedData();
     void socketDidChangeState(QAbstractSocket::SocketState);
 
 protected:
     enum DataType { Flip = 200, Move, Chessboard, Surrender, Start };
+
+    QTcpSocket *socket;
 
     virtual void handleReceivedData(QByteArray buffer);
     void connectToSocket(QTcpSocket *socket);
@@ -31,7 +30,7 @@ signals:
     void didLostConnection();
 
 public:
-    void disconnectFromHost();
+    virtual void disconnectFromHost() = 0;
     void sendFlipChessData(const ChessPoint &pos, qint32 operationIndex);
     void sendMoveChessData(const ChessPoint &src, const ChessPoint &des, qint32 operationIndex);
     void sendStart();

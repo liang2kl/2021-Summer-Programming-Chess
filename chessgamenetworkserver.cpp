@@ -14,6 +14,11 @@ void ChessGameNetworkServer::stopListening() {
     server->close();
 }
 
+void ChessGameNetworkServer::disconnectFromHost() {
+    if (socket) { socket->disconnectFromHost(); }
+    server->close();
+}
+
 void ChessGameNetworkServer::serverDidInitiateNewConnection() {
     auto *socket = server->nextPendingConnection();
     connectToSocket(socket);

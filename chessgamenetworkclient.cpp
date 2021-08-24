@@ -42,3 +42,7 @@ void ChessGameNetworkClient::handleReceivedData(QByteArray buffer) {
 
     emit didReceiveChessboardData(data, startIndex);
 }
+
+void ChessGameNetworkClient::disconnectFromHost() {
+    socket->disconnectFromHost();
+}

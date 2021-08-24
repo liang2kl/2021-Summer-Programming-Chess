@@ -364,7 +364,7 @@ void ChessGame::surrender(bool isOpposite) {
 void ChessGame::start() {
     started = true;
     emit didStarted();
-    increaseIndex();
+    startTimer();
 }
 
 bool ChessGame::canAct() const {
@@ -471,6 +471,11 @@ void ChessGame::updateResultState() {
     bool canBlueMove = false;
     for (auto *chess : _chesses) {
         if (!chess) { continue; }
+        if (!chess->isFlipped()) {
+            canRedMove = true;
+            canBlueMove = true;
+            break;
+        }
         if (canRedMove && chess->side() == Chess::Side::Red) {
             continue;
         }

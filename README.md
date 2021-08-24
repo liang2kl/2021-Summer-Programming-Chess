@@ -4,13 +4,13 @@
 
 ## 架构
 
-采用 MVC 架构的一种变形、如下图所示的 Model - View - View Model（MVVM）架构。
+采用如下图所示的两种 Model - View - View Model（MVVM）架构。
 
-![https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcblx0dm0oVmlldyBNb2RlbClcblx0dihWaWV3KVxuXHRtKE1vZGVsKVxuXHR2LS0gXCJJbnRlbnRzIChVSSBFdmVudHMpXCIgLS0-dm1cblx0dm0tLSBVcGRhdGUtLT5tXG5cdG0tLlNpZ25hbHMuLT52IiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRlZmF1bHRcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0](https://mermaid.ink/svg/eyJjb2RlIjoiZ3JhcGggVERcblx0dm0oVmlldyBNb2RlbClcblx0dihWaWV3KVxuXHRtKE1vZGVsKVxuXHR2LS0gXCJJbnRlbnRzIChVSSBFdmVudHMpXCIgLS0-dm1cblx0dm0tLSBVcGRhdGUtLT5tXG5cdG0tLlNpZ25hbHMuLT52IiwibWVybWFpZCI6eyJ0aGVtZSI6ImRlZmF1bHQifSwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)
+![https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcblx0dm0oVmlldyBNb2RlbClcblx0dihWaWV3KVxuXHRtKE1vZGVsKVxuXHR2LS0gXCJJbnRlbnRzIChVSSBFdmVudHMpXCIgLS0-dm1cblx0dm0tLSBVcGRhdGUtLT5tXG5cdG0tLlNpZ25hbHMuLT52XG5cblx0dm0xKFZpZXcgTW9kZWwpXG5cdHYxKFZpZXcpXG5cdG0xKE1vZGVsKVxuXHR2MS0tIFwiSW50ZW50cyAoVUkgRXZlbnRzKVwiIC0tLT52bTFcblx0dm0xLS0gVXBkYXRlLS0tPm0xXG5cdG0xLS5TaWduYWxzLi0-dm0xXG4gICAgdm0xIC0uU2lnbmFscy4tPnYxIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRlZmF1bHRcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0](https://mermaid.ink/svg/eyJjb2RlIjoiZ3JhcGggVERcblx0dm0oVmlldyBNb2RlbClcblx0dihWaWV3KVxuXHRtKE1vZGVsKVxuXHR2LS0gXCJJbnRlbnRzIChVSSBFdmVudHMpXCIgLS0-dm1cblx0dm0tLSBVcGRhdGUtLT5tXG5cdG0tLlNpZ25hbHMuLT52XG5cblx0dm0xKFZpZXcgTW9kZWwpXG5cdHYxKFZpZXcpXG5cdG0xKE1vZGVsKVxuXHR2MS0tIFwiSW50ZW50cyAoVUkgRXZlbnRzKVwiIC0tLT52bTFcblx0dm0xLS0gVXBkYXRlLS0tPm0xXG5cdG0xLS5TaWduYWxzLi0-dm0xXG4gICAgdm0xIC0uU2lnbmFscy4tPnYxIiwibWVybWFpZCI6eyJ0aGVtZSI6ImRlZmF1bHQifSwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)
 
-对于 MVC 架构，最重要的是保证数据在不同部分之间的流动是单向的，**杜绝在同一个地方同时更新 Model 和 View**，不然随着 UI 依赖的状态越来越复杂，正确地更新 UI 变得几乎不可能。
+对于命令式 UI 构建，最重要的是保证数据在不同部分之间的流动是单向的，**杜绝在同一个地方同时更新 Model 和 View**，不然随着 UI 依赖的状态越来越复杂，正确地更新 UI 变得几乎不可能。
 
-如上图所示，View 中点击等 UI 事件触发 intent，由 View Model 进行处理后，更新 Model，Model 在自身更新后发送 signals，View 根据信号进行更新。
+如上图所示，View 中点击等 UI 事件触发 intent，由 View Model 进行处理后，更新 Model，Model 在自身更新后发送 signals（或者由 View Model 接受后发送 signals），View 根据信号进行更新。
 
 本应用采取了以下方法严格实现数据的单向流动：
 
@@ -18,11 +18,7 @@
 - View 只能通过 View Model 获取指向 Model 的 const 指针，因此不能改变 Model
 - View Model 和 Model 不能访问 View 对象
 
-由此，改变 Model 只能通过 View Model，而更新 View 只能通过 Model 发送的信号来间接实现。借助 Qt 的 signal - slot 机制，我们很容易实现信息的流动。
-
-当然，有时候为了简便，并不需要完整的 MVVM 结构，不过仍应满足单向数据流动：
-
-![https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZ3JhcGggVERcblx0dm0oVmlldyBNb2RlbClcblx0dihWaWV3KVxuXHRtKE1vZGVsKVxuXHR2IC0tIEludGVudHMgLS0-IHZtXG5cdHZtIC0uU2lnbmFsLi0-IHZcblx0XG5cdHZtMShWaWV3IE1vZGVsKVxuXHR2bTEgLS0gUmVxdWVzdCAtLT4gbVxuXHRtIC0uIFJlc3BvbnNlIC4tPiB2bTFcblx0XG5cdHYxKFZpZXcpXG5cdG0xKE1vZGVsKVxuXHR2MSAtLSBJbnRlbnRzIC0tPiBtMVxuXHRtMSAtLiBTaWduYWwgLi0-IHYxIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRlZmF1bHRcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0](https://mermaid.ink/svg/eyJjb2RlIjoiZ3JhcGggVERcblx0dm0oVmlldyBNb2RlbClcblx0dihWaWV3KVxuXHRtKE1vZGVsKVxuXHR2IC0tIEludGVudHMgLS0-IHZtXG5cdHZtIC0uU2lnbmFsLi0-IHZcblx0XG5cdHZtMShWaWV3IE1vZGVsKVxuXHR2bTEgLS0gUmVxdWVzdCAtLT4gbVxuXHRtIC0uIFJlc3BvbnNlIC4tPiB2bTFcblx0XG5cdHYxKFZpZXcpXG5cdG0xKE1vZGVsKVxuXHR2MSAtLSBJbnRlbnRzIC0tPiBtMVxuXHRtMSAtLiBTaWduYWwgLi0-IHYxIiwibWVybWFpZCI6eyJ0aGVtZSI6ImRlZmF1bHQifSwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)
+由此，改变 Model 只能通过 View Model，而更新 View 只能通过 Model 或 View Model 发送的信号来间接实现。借助 Qt 的 signal - slot 机制，我们很容易实现信息的流动。
 
 具体而言，应用整体框架如下：
 
@@ -154,9 +150,9 @@ private slots:
 
 这样，就可以在每次游戏更新时，根据 Model 更新正确的 UI。
 
-### 操作的转发：View Model
+### 操作的转发：通过 View Model
 
-View Model（即 `ChessGameManager`）在这里起到的是一个转发双方操作的作用。
+应用的关键是执行游戏的各种操作。View Model（即 `ChessGameManager`）在这里起到的是一个转发双方操作的作用。
 
 下图说明了这一点是如何达到的：
 

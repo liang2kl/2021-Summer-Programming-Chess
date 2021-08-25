@@ -14,7 +14,6 @@ void ChessGameNetworkClient::connectToHost(const QString &hostName) {
             this, &ChessGameNetworkBase::didFailToConnectToHost);
     connect(socket, &QTcpSocket::stateChanged,
            this, &ChessGameNetworkClient::socketDidChangeState);
-    qDebug() << "Connecting";
 }
 
 void ChessGameNetworkClient::handleReceivedData(QByteArray buffer) {

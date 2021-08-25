@@ -109,7 +109,6 @@ QVector<int> ChessGame::availablePointsFor(const Chess * chess) const {
 }
 
 bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) const {
-    auto g = railwayGraph(source, dest);
     auto sourceChess = _chesses[source];
     auto destChess = _chesses[dest];
 
@@ -121,9 +120,10 @@ bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) c
 
     if (!destChess) {
         if (source.isOnRailway() && dest.isOnRailway()) {
+            auto g = railwayGraph(source, dest);
             return allowingPointOnRailwayMoveTo(source, dest, sourceChess->type() == Chess::Type::Engineer, g);
         } else {
-            // Only allowed when they are around. if one chess is not on railway
+            // Only allowed when they are around, if one chess is not on railway
             return sourceChess->allowingMoveTo(dest);
         }
     }
@@ -150,6 +150,7 @@ bool ChessGame::canMoveChess(const ChessPoint &source, const ChessPoint &dest) c
     // It takes special care for chesses that
     // can move over more than one slot.
     if (source.isOnRailway() && dest.isOnRailway()) {
+        auto g = railwayGraph(source, dest);
         if (!allowingPointOnRailwayMoveTo(source, dest, sourceChess->type() == Chess::Type::Engineer, g)) {
             return false;
         }
@@ -184,8 +185,7 @@ bool ChessGame::allowingPointOnRailwayMoveTo(const ChessPoint &source, const Che
 
     // Engineer scenario
 
-    qDebug() << dest;
-    return railwayGraph.isConnected(railwayIndexMap[indexOfPoint(source)], railwayIndexMap[indexOfPoint(dest)]);
+    return railwayGraph.isConnected(railwayIndexMap[source], railwayIndexMap[dest]);
 }
 
 
@@ -314,7 +314,7 @@ Graph ChessGame::railwayGraph(int startIndex, int endIndex) const {
 // Playing
 
 void ChessGame::flipChess(const ChessPoint &pos) {
-    auto *chess = _chesses[indexOfPoint(pos)];
+    auto *chess = _chesses[pos];
     chess->flip();
     emit chessDidFlip(pos);
     increaseIndex();
@@ -326,27 +326,27 @@ void ChessGame::moveChess(const ChessPoint &source, const ChessPoint &dest) {
     assert((_state == BlueMove && _chesses[source]->side() == Chess::Side::Blue) ||
             (_state == RedMove && _chesses[source]->side() == Chess::Side::Red));
 
-    auto *srcChess = _chesses[indexOfPoint(source)];
-    auto *desChess = _chesses[indexOfPoint(dest)];
+    auto *srcChess = _chesses[source];
+    auto *desChess = _chesses[dest];
 
     if (!desChess) {
         srcChess->setPosition(dest);
-        _chesses[indexOfPoint(dest)] = _chesses[indexOfPoint(source)];
-        _chesses[indexOfPoint(source)] = nullptr;
+        _chesses[dest] = _chesses[source];
+        _chesses[source] = nullptr;
         emit chessDidMove(source, dest);
     } else {
         auto result = srcChess->encounter(*desChess);
 
         if (result == Chess::EncounterResult::Success) {
             srcChess->setPosition(dest);
-            _chesses[indexOfPoint(dest)] = _chesses[indexOfPoint(source)];
-            _chesses[indexOfPoint(source)] = nullptr;
+            _chesses[dest] = _chesses[source];
+            _chesses[source] = nullptr;
 
             emit chessDidRemoved(dest);
             emit chessDidMove(source, dest);
         } else {
-            _chesses[indexOfPoint(dest)] = nullptr;
-            _chesses[indexOfPoint(source)] = nullptr;
+            _chesses[dest] = nullptr;
+            _chesses[source] = nullptr;
 
             emit chessDidRemoved(dest);
             emit chessDidRemoved(source);
@@ -436,7 +436,6 @@ void ChessGame::updateFlipState(Chess::Side side) {
         }
 
     } else {
-        // FIXME: Really reasonable to put it here?
         setState(_state == RedMove ? BlueMove : RedMove);
     }
 }
@@ -491,7 +490,6 @@ void ChessGame::updateResultState() {
         }
     }
 
-    assert(canRedMove || canBlueMove);
     if (!canRedMove) {
         setState(BlueWin);
         return;
@@ -499,8 +497,6 @@ void ChessGame::updateResultState() {
         setState(RedWin);
         return;
     }
-
-    // TODO: Other Logic
 
     // Toggle movable side
     setState(_state == RedMove ? BlueMove : RedMove);

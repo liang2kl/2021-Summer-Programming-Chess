@@ -13,7 +13,7 @@ public:
         adjLists = QVector<QVector<int>>(v + 1);
     }
     void addEdge(int from, int to) {
-        adjLists[from].emplace_back(to);
+        adjLists[from].push_back(to);
     }
 
     // dfs
@@ -30,15 +30,6 @@ public:
         }
 
         return false;
-    }
-
-    void print() const {
-        for (int i = 0; i < adjLists.size(); i++) {
-            auto adjList = adjLists[i];
-            for (auto to : adjList) {
-                qDebug() << i << " " << to;
-            }
-        }
     }
 };
 

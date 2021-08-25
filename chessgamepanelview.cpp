@@ -135,7 +135,7 @@ void ChessGamePanelView::chessGameDidChangeIndex() {
         surrenderButton = new QPushButton();
         surrenderButton->setText("投降");
         hLayout->addWidget(surrenderButton);
-        // TODO: Surrender Action
+
         connect(surrenderButton, &QPushButton::clicked,
                 [this]() { this->manager->surrender(); });
     }
@@ -148,7 +148,6 @@ void ChessGamePanelView::chessGameDidChangeIndex() {
 }
 
 void ChessGamePanelView::chessGameDidChangeThisPlayerTimeoutCount(int count) {
-    qDebug() << "This player, timeout" << count;
     if (count == 1) {
         timeoutVLayout->addWidget(thisTimeoutLabel);
     }
@@ -157,7 +156,6 @@ void ChessGamePanelView::chessGameDidChangeThisPlayerTimeoutCount(int count) {
 }
 
 void ChessGamePanelView::chessGameDidChangeAnotherPlayerTimeoutCount(int count) {
-    qDebug() << "Another player, timeout" << count;
     if (count == 1) {
         timeoutVLayout->addWidget(thatTimeoutLabel);
     }
@@ -169,7 +167,6 @@ void ChessGamePanelView::chessGameDidUpdateRemainingSeconds(int seconds) {
         lcdNumber->setVisible(true);
     }
     lcdNumber->display(seconds);
-    qDebug() << seconds;
 }
 
 void ChessGamePanelView::chessGameDidStarted() {

@@ -75,7 +75,6 @@ signals:
 
 // State
 private:
-    // TODO: Update for multiusers.
     int __selectedIndex = -1;
     QVector<int> __destPoints;
     void setSelectedIndex(int i);

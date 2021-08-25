@@ -338,14 +338,10 @@ void ChessboardScene::setDestPoints(const QVector<int> points) {
 // Respond to signals from the game model. The only place where
 // model-based UI could be modified.
 void ChessboardScene::chessGameDidFlipChess(const ChessPoint &pos) {
-    qDebug() << "Flipped Chess" << pos;
     chessItems[pos]->toggleSide();
 }
 
 void ChessboardScene::chessGameDidMoveChess(const ChessPoint &source, const ChessPoint &dest) {
-    qDebug() << "Move Chess from" << source << "to" << dest;
-
-
     chessItems[source]->animatedSetPos(
                 QPointF(cellCenters[dest].x() - cellWidth() / 2,
                 cellCenters[dest].y() - cellHeight() / 2)

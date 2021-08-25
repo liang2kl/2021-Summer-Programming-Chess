@@ -57,21 +57,21 @@ void ChessGameManager::startGame() {
 }
 
 void ChessGameManager::flipChess(const ChessPoint &pos) {
-    // Send data first cause message box will block the UI.
+    // Send data first cause message box will block the thread.
     assert(_game->canAct());
     network->sendFlipChessData(pos, _game->index() + 1);
     _game->flipChess(pos);
 }
 
 void ChessGameManager::moveChess(const ChessPoint &src, const ChessPoint &dest) {
-    // Send data first cause message box will block the UI.
+    // Send data first cause message box will block the thread.
     assert(_game->canAct());
     network->sendMoveChessData(src, dest, _game->index() + 1);
     _game->moveChess(src, dest);
 }
 
 void ChessGameManager::surrender() {
-    // Send data first cause message box will block the UI.
+    // Send data first cause message box will block the thread.
     network->sendSurrender();
     _game->surrender(false);
 }
@@ -98,7 +98,6 @@ void ChessGameManager::networkDidConnectToHost() {
 }
 
 void ChessGameManager::networkDidReceiveFlipChessData(const ChessPoint &pos, qint32 operationIndex) {
-    // TODO: Index
     assert(operationIndex == _game->index() + 1);
     _game->flipChess(pos);
 }
@@ -113,7 +112,6 @@ void ChessGameManager::networkDidReceiveStart() {
     if (thisStarted) {
         _game->start();
     }
-    qDebug() << "Oppo Started";
 }
 
 void ChessGameManager::networkDidReceiveSurrender() {

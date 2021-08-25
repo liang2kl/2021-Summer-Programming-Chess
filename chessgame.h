@@ -19,11 +19,6 @@ private:
     QVector<int> railwayIndices;
     QMap<int, int> railwayIndexMap;
 
-    int indexOfPoint(const ChessPoint &point) const {
-        assert(point.x() < 12 && point.y() < 5);
-        return point.x() * 5 + point.y();
-    }
-
     bool allowingPointOnRailwayMoveTo(const ChessPoint &source, const ChessPoint &dest, bool isEngineer, const Graph &railwayGraph) const;
     bool allowingVerticallyMoveTo(const ChessPoint &source, const ChessPoint &dest) const;
     bool allowingHorizontallyMoveTo(const ChessPoint &source, const ChessPoint &dest) const;
@@ -65,6 +60,7 @@ public:
     void setIsServer(bool isServer) { this->isServer = isServer; }
     void setStartIndex(qint32 index);
     void start();
+
     bool isStarted() const { return started; }
     qint32 index() const { return __index; }
     bool canAct() const;
